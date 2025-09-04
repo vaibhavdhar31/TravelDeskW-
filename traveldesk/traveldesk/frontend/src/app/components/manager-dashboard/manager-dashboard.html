@@ -1,0 +1,204 @@
+<div class="manager-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">✈</span>
+        <div>
+          <div class="sidebar-title">Travel Desk</div>
+          <div class="sidebar-subtitle">Manager Portal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation moved to middle section -->
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <p class="nav-section-title">NAVIGATION</p>
+        <ul class="nav-list">
+          <li
+            class="nav-item"
+            [class.active]="activeSection === 'dashboard'"
+            (click)="setActiveSection('dashboard')"
+          >
+            <a class="nav-link">
+              <span class="nav-icon">🏠</span>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li
+            class="nav-item"
+            [class.active]="activeSection === 'requests'"
+            (click)="setActiveSection('requests')"
+          >
+            <a class="nav-link">
+              <span class="nav-icon">📋</span>
+              <span>Assigned Requests</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Profile at bottom -->
+    <div class="sidebar-profile">
+      <div class="profile-info">
+        <div class="profile-avatar">MW</div>
+        <div class="profile-details">
+          <div class="profile-name">Mike Wilson</div>
+          <div class="profile-role">Manager</div>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header - removed notification badge -->
+    <header class="header">
+      <div class="header-info">
+        <div class="header-title">Manager Dashboard</div>
+        <div class="header-desc">Approve and manage travel requests</div>
+      </div>
+      <div class="header-profile">
+        <div class="profile-mini-avatar">MW</div>
+        <div class="profile-details">
+          <div class="profile-name">Mike Wilson</div>
+          <div class="profile-role">Manager</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Pending Requests</div>
+            <div class="stat-value">{{ stats.pending }}</div>
+          </div>
+          <div class="stat-icon yellow">⏰</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value">{{ stats.approved }}</div>
+          </div>
+          <div class="stat-icon green">✓</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Returned</div>
+            <div class="stat-value">{{ stats.returned }}</div>
+          </div>
+          <div class="stat-icon red">↩</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value">{{ stats.total }}</div>
+          </div>
+          <div class="stat-icon blue">📄</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assigned Requests Table -->
+    <section class="assigned-section">
+      <div class="assigned-header">
+        <div class="section-info">
+          <div class="assigned-title">Assigned Requests</div>
+          <div class="assigned-desc">Review and approve travel requests from your team</div>
+        </div>
+        <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterRequests()">
+          <option value="">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Returned">Returned</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="assigned-table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Employee</th>
+              <th>Project</th>
+              <th>Booking Type</th>
+              <th>Date Submitted</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of filteredRequests">
+              <td class="request-id">{{ request.id }}</td>
+              <td>{{ request.employee }}</td>
+              <td>{{ request.project }}</td>
+              <td>{{ request.bookingType }}</td>
+              <td>{{ request.dateSubmitted }}</td>
+              <td>
+                <span class="badge" [ngClass]="'badge-' + request.status.toLowerCase()">
+                  {{ request.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <div class="action-buttons" *ngIf="request.status === 'Pending'">
+                  <button
+                    class="btn-action approve"
+                    (click)="openActionModal(request.id, 'approve')"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    class="btn-action disapprove"
+                    (click)="openActionModal(request.id, 'disapprove')"
+                  >
+                    Disapprove
+                  </button>
+                  <button class="btn-action return" (click)="openActionModal(request.id, 'return')">
+                    Return
+                  </button>
+                </div>
+                <span class="completed-text" *ngIf="request.status === 'Approved'">Completed</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Action Modal -->
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ getModalTitle() }} {{ currentRequestId }}</h3>
+      <button class="modal-close" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">Comments (Required)</label>
+      <textarea
+        class="modal-textarea"
+        [(ngModel)]="modalComments"
+        placeholder="Enter your comments..."
+        rows="4"
+      >
+      </textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+      <button
+        class="btn-submit"
+        [class]="'btn-submit-' + currentAction"
+        (click)="submitAction()"
+        [disabled]="!modalComments.trim()"
+      >
+        {{ getActionButtonText() }}
+      </button>
+    </div>
+  </div>
+</div>

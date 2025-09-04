@@ -1,0 +1,458 @@
+<div class="travel-admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">✈</span>
+        <div>
+          <div class="sidebar-title">Travel Desk</div>
+          <div class="sidebar-subtitle">Travel Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <p class="nav-section-title">NAVIGATION</p>
+        <div class="nav-list">
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'dashboard'"
+            (click)="setActiveSection('dashboard')"
+          >
+            <span class="nav-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+          <!-- <a
+            class="nav-item"
+            [class.active]="activeSection === 'requests'"
+            (click)="setActiveSection('requests')"
+          >
+            <span class="nav-icon">📋</span>
+            <span>Request Management</span>
+          </a> -->
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'history'"
+            (click)="setActiveSection('history')"
+          >
+            <span class="nav-icon">📊</span>
+            <span>Booking History</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Profile at bottom -->
+    <div class="sidebar-profile">
+      <div class="profile-info">
+        <div class="profile-avatar">ER</div>
+        <div class="profile-details">
+          <div class="profile-name">Emily Rodriguez</div>
+          <div class="profile-role">Travel Admin</div>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-info">
+        <div class="header-title">Travel Admin Dashboard</div>
+        <div class="header-desc">Manage travel arrangements and bookings</div>
+      </div>
+      <div class="header-profile">
+        <div class="profile-mini-avatar">ER</div>
+        <div class="profile-details">
+          <div class="profile-name">Emily Rodriguez</div>
+          <div class="profile-role">Travel Admin</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Dashboard Section -->
+      <section *ngIf="activeSection === 'dashboard'" class="content-section">
+        <!-- Stats Cards -->
+        <div class="stats-container">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Approved Requests</div>
+                <div class="stat-value">{{ stats.approvedRequests }}</div>
+              </div>
+              <div class="stat-icon green">✓</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Booked</div>
+                <div class="stat-value">{{ stats.booked }}</div>
+              </div>
+              <div class="stat-icon blue">📧</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Pending Booking</div>
+                <div class="stat-value">{{ stats.pendingBooking }}</div>
+              </div>
+              <div class="stat-icon yellow">⏰</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value">{{ stats.completed }}</div>
+              </div>
+              <div class="stat-icon purple">☑</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Request Management -->
+        <div class="assigned-section">
+          <div class="assigned-header">
+            <div class="section-info">
+              <div class="assigned-title">Request Management</div>
+              <div class="assigned-desc">Manage approved travel requests and make bookings</div>
+            </div>
+            <select [(ngModel)]="selectedStatus" (change)="filterRequests()" class="status-filter">
+              <option>All Requests</option>
+              <option>Pending Travel Admin Approval</option>
+              <option>Approved</option>
+              <option>Booked</option>
+              <option>Completed</option>
+            </select>
+          </div>
+
+          <div class="table-responsive">
+            <table class="assigned-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Employee</th>
+                  <th>Manager</th>
+                  <th>Booking Type</th>
+                  <th>Approved Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let request of filteredRequests">
+                  <td class="request-id">{{ request.id }}</td>
+                  <td>{{ request.employee }}</td>
+                  <td>{{ request.manager }}</td>
+                  <td>{{ request.bookingType }}</td>
+                  <td>{{ request.approvedDate }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="'badge-' + request.status.toLowerCase().replace(' ', '-')"
+                    >
+                      {{ request.status }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <div class="action-buttons" [ngSwitch]="request.status">
+                      <!-- Pending Travel Admin Approval Actions -->
+                      <div *ngSwitchCase="'Pending Travel Admin Approval'" class="pending-approval-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'approve')"
+                          class="btn-action approve"
+                        >
+                          ✅ Approve
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'disapprove')"
+                          class="btn-action disapprove"
+                        >
+                          ❌ Disapprove
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'returnManager')"
+                          class="btn-action return-manager"
+                        >
+                          ↩ Return to Manager
+                        </button>
+                      </div>
+                      <!-- Approved Status Actions -->
+                      <div *ngSwitchCase="'Approved'" class="approved-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'book')"
+                          class="btn-action book"
+                        >
+                          📧 Book
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'returnManager')"
+                          class="btn-action return-manager"
+                        >
+                          ↩ Return to Manager
+                        </button>
+                      </div>
+                      <!-- Booked Status Actions -->
+                      <div *ngSwitchCase="'Booked'" class="booked-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'complete')"
+                          class="btn-action complete"
+                        >
+                          ✅ Complete
+                        </button>
+                        <button (click)="viewBooking(request.id)" class="btn-action view-booking">
+                          👁 View Booking
+                        </button>
+                      </div>
+                      <!-- Completed Status Actions -->
+                      <div *ngSwitchCase="'Completed'" class="completed-actions">
+                        <button (click)="viewDetails(request.id)" class="btn-action view-details">
+                          👁 View Details
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Request Management Section -->
+      <section *ngIf="activeSection === 'requests'" class="content-section">
+        <div class="assigned-section">
+          <div class="assigned-header">
+            <div class="section-info">
+              <div class="assigned-title">Request Management</div>
+              <div class="assigned-desc">Detailed view of all travel requests requiring action</div>
+            </div>
+            <select [(ngModel)]="selectedStatus" (change)="filterRequests()" class="status-filter">
+              <option>All Requests</option>
+              <option>Pending Travel Admin Approval</option>
+              <option>Approved</option>
+              <option>Booked</option>
+              <option>Completed</option>
+            </select>
+          </div>
+
+          <div class="table-responsive">
+            <table class="assigned-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Employee</th>
+                  <th>Manager</th>
+                  <th>Booking Type</th>
+                  <th>Approved Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let request of filteredRequests">
+                  <td class="request-id">{{ request.id }}</td>
+                  <td>{{ request.employee }}</td>
+                  <td>{{ request.manager }}</td>
+                  <td>{{ request.bookingType }}</td>
+                  <td>{{ request.approvedDate }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="'badge-' + request.status.toLowerCase().replace(' ', '-')"
+                    >
+                      {{ request.status }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <div class="action-buttons" [ngSwitch]="request.status">
+                      <!-- Pending Travel Admin Approval Actions -->
+                      <div *ngSwitchCase="'Pending Travel Admin Approval'" class="pending-approval-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'approve')"
+                          class="btn-action approve"
+                        >
+                          ✅ Approve
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'disapprove')"
+                          class="btn-action disapprove"
+                        >
+                          ❌ Disapprove
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'returnManager')"
+                          class="btn-action return-manager"
+                        >
+                          ↩ Return to Manager
+                        </button>
+                      </div>
+                      <!-- Approved Status Actions -->
+                      <div *ngSwitchCase="'Approved'" class="approved-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'book')"
+                          class="btn-action book"
+                        >
+                          📧 Book
+                        </button>
+                        <button
+                          (click)="openActionModal(request.id, 'returnManager')"
+                          class="btn-action return-manager"
+                        >
+                          ↩ Return to Manager
+                        </button>
+                      </div>
+                      <!-- Booked Status Actions -->
+                      <div *ngSwitchCase="'Booked'" class="booked-actions">
+                        <button
+                          (click)="openActionModal(request.id, 'complete')"
+                          class="btn-action complete"
+                        >
+                          ☑ Complete
+                        </button>
+                        <button (click)="viewBooking(request.id)" class="btn-action view-booking">
+                          👁 View Booking
+                        </button>
+                      </div>
+                      <!-- Completed Status Actions -->
+                      <div *ngSwitchCase="'Completed'" class="completed-actions">
+                        <button (click)="viewDetails(request.id)" class="btn-action view-details">
+                          👁 View Details
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Booking History Section -->
+      <section *ngIf="activeSection === 'history'" class="content-section">
+        <div class="assigned-section">
+          <div class="assigned-header">
+            <div class="section-info">
+              <div class="assigned-title">Booking History</div>
+              <div class="assigned-desc">View complete history of all processed bookings</div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="assigned-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Employee</th>
+                  <th>Manager</th>
+                  <th>Booking Type</th>
+                  <th>Completed Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let request of getCompletedRequests()">
+                  <td class="request-id">{{ request.id }}</td>
+                  <td>{{ request.employee }}</td>
+                  <td>{{ request.manager }}</td>
+                  <td>{{ request.bookingType }}</td>
+                  <td>{{ request.approvedDate }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="'badge-' + request.status.toLowerCase().replace(' ', '-')"
+                    >
+                      {{ request.status }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <div class="action-buttons">
+                      <button (click)="viewDetails(request.id)" class="btn-action view-details">
+                        👁 View Details
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Action Modal -->
+<div *ngIf="isModalOpen" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ getModalTitle() }}</h3>
+      <button class="modal-close" (click)="closeModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Upload Section (only for booking action) -->
+      <div *ngIf="showUploadSection()" class="upload-section">
+        <h4 class="upload-title">Upload Tickets/Documents</h4>
+        <div class="upload-area" (click)="triggerFileInput()">
+          <div class="upload-content">
+            <div class="upload-icon">⬆</div>
+            <p class="upload-text">Drag and drop ticket files here or click to browse</p>
+            <input
+              #fileInput
+              type="file"
+              style="display: none"
+              multiple
+              accept=".pdf,.jpg,.png,.doc,.docx"
+              (change)="onFilesSelected($event)"
+            />
+            <button type="button" class="btn-upload">+ Add Tickets</button>
+          </div>
+        </div>
+
+        <!-- File List -->
+        <div *ngIf="uploadedFiles.length > 0" class="file-list">
+          <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
+            <span class="file-name">{{ file.name }}</span>
+            <button type="button" (click)="removeFile(i)" class="btn-remove">&times;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section">
+        <label class="modal-label">
+          {{ currentAction === 'book' ? 'Booking Comments' : 'Comments' }} (Required)
+        </label>
+        <textarea
+          [(ngModel)]="modalComments"
+          class="modal-textarea"
+          [placeholder]="
+            currentAction === 'book'
+              ? 'Enter booking details and comments...'
+              : 'Enter your comments...'
+          "
+          rows="4"
+          required
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" (click)="closeModal()" class="btn-cancel">Cancel</button>
+      <button
+        type="button"
+        (click)="submitAction()"
+        class="btn-submit"
+        [ngClass]="'btn-submit-' + currentAction"
+        [disabled]="!modalComments.trim() || (showUploadSection() && uploadedFiles.length === 0)"
+      >
+        {{ getSubmitButtonText() }}
+      </button>
+    </div>
+  </div>
+</div>

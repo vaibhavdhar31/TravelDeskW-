@@ -1,0 +1,457 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">✈</span>
+        <div>
+          <div class="sidebar-title">Travel Desk</div>
+          <div class="sidebar-subtitle">Admin Panel</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <p class="nav-section-title">NAVIGATION</p>
+        <div class="nav-list">
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'dashboard'"
+            (click)="setActiveSection('dashboard')"
+          >
+            <span class="nav-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'add-user'"
+            (click)="setActiveSection('add-user')"
+          >
+            <span class="nav-icon">➕</span>
+            <span>Add User</span>
+          </a>
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'user-management'"
+            (click)="setActiveSection('user-management')"
+          >
+            <span class="nav-icon">👥</span>
+            <span>User Management</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Profile at bottom -->
+    <div class="sidebar-profile">
+      <div class="profile-info">
+        <div class="profile-avatar">JA</div>
+        <div class="profile-details">
+          <div class="profile-name">John Admin</div>
+          <div class="profile-role">Administrator</div>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-info">
+        <div class="header-title">Admin Dashboard</div>
+        <div class="header-desc">Manage users and system settings</div>
+      </div>
+      <div class="header-profile">
+        <div class="profile-mini-avatar">JA</div>
+        <div class="profile-details">
+          <div class="profile-name">John Admin</div>
+          <div class="profile-role">Administrator</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Dashboard Section -->
+      <section *ngIf="activeSection === 'dashboard'" class="content-section">
+        <!-- Stats Cards -->
+        <div class="stats-container">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ stats.totalUsers }}</div>
+              </div>
+              <div class="stat-icon blue">👥</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Active Users</div>
+                <div class="stat-value">{{ stats.activeUsers }}</div>
+              </div>
+              <div class="stat-icon green">✅</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Pending Requests</div>
+                <div class="stat-value">{{ stats.pendingRequests }}</div>
+              </div>
+              <div class="stat-icon yellow">⏰</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Departments</div>
+                <div class="stat-value">{{ stats.departments }}</div>
+              </div>
+              <div class="stat-icon purple">🏢</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div class="user-management">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">User Management</h2>
+              <p class="section-desc">Manage all system users and their roles</p>
+            </div>
+            <button (click)="openAddUserModal()" class="btn-primary">+ Add User</button>
+          </div>
+
+          <div class="controls-row">
+            <div class="search-box">
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+                placeholder="Search users..."
+                class="search-input"
+              />
+              <span class="search-icon">🔍</span>
+            </div>
+            <select
+              [(ngModel)]="selectedDepartment"
+              (change)="onDepartmentChange()"
+              class="department-select"
+            >
+              <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+            </select>
+          </div>
+
+          <div class="table-container">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Employee First Name</th>
+                  <th>Employee Last Name</th>
+                  <th>Employee ID</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Role</th>
+                  <th>Manager Name</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of filteredUsers">
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td class="user-id">{{ user.userId }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.department }}</td>
+                  <td>
+                    <span
+                      class="role-badge"
+                      [ngClass]="'role-' + user.role.toLowerCase().replace(' ', '-')"
+                    >
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td>{{ user.manager }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="'status-' + (user.status?.toLowerCase() || 'active')">
+                      {{ user.status || 'Active' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button (click)="openEditUserModal(user)" class="btn-action edit">Edit</button>
+                    <button (click)="deleteUser(user.userId)" class="btn-action delete">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add User Section -->
+      <section *ngIf="activeSection === 'add-user'" class="content-section">
+        <div class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">Add New User</h2>
+            <p class="form-subtitle">Create a new user account in the system</p>
+          </div>
+
+          <form class="user-form" (ngSubmit)="saveUser()" #userForm="ngForm">
+            <div class="form-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">First Name *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="currentUser.firstName"
+                    name="firstName"
+                    placeholder="Enter first name"
+                    class="form-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="currentUser.lastName"
+                    name="lastName"
+                    placeholder="Enter last name"
+                    class="form-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email *</label>
+                  <input
+                    type="email"
+                    [(ngModel)]="currentUser.email"
+                    name="email"
+                    placeholder="Enter email address"
+                    class="form-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Department *</label>
+                  <select
+                    [(ngModel)]="currentUser.department"
+                    name="department"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select department</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Role *</label>
+                  <select [(ngModel)]="currentUser.role" name="role" class="form-select" required>
+                    <option value="Employee">Employee</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Travel Admin">Travel Admin</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Manager</label>
+                  <select [(ngModel)]="currentUser.manager" name="manager" class="form-select">
+                    <option value="">Select manager</option>
+                    <option *ngFor="let manager of managers" [value]="manager">
+                      {{ manager }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" (click)="currentUser = getEmptyUser()" class="btn-cancel">
+                Clear
+              </button>
+              <button type="submit" class="btn-submit">Add User</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- User Management Section -->
+      <section *ngIf="activeSection === 'user-management'" class="content-section">
+        <div class="user-management">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">User Management</h2>
+              <p class="section-desc">View and manage all system users</p>
+            </div>
+            <button (click)="openAddUserModal()" class="btn-primary">+ Add User</button>
+          </div>
+
+          <div class="controls-row">
+            <div class="search-box">
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+                placeholder="Search users..."
+                class="search-input"
+              />
+              <span class="search-icon">🔍</span>
+            </div>
+            <select
+              [(ngModel)]="selectedDepartment"
+              (change)="onDepartmentChange()"
+              class="department-select"
+            >
+              <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+            </select>
+          </div>
+
+          <div class="table-container">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Employee First Name</th>
+                  <th>Employee Last Name</th>
+                  <th>Employee ID</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Role</th>
+                  <th>Manager Name</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of filteredUsers">
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td class="user-id">{{ user.userId }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.department }}</td>
+                  <td>
+                    <span
+                      class="role-badge"
+                      [ngClass]="'role-' + user.role.toLowerCase().replace(' ', '-')"
+                    >
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td>{{ user.manager }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="'status-' + (user.status?.toLowerCase() || 'active')">
+                      {{ user.status || 'Active' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button (click)="openEditUserModal(user)" class="btn-action edit">Edit</button>
+                    <button (click)="deleteUser(user.userId)" class="btn-action delete">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div *ngIf="isModalOpen" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ modalMode === 'add' ? 'Add New User' : 'Edit User' }}</h3>
+      <button class="modal-close" (click)="closeModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <form class="modal-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="modal-label">First Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="currentUser.firstName"
+              name="firstName"
+              class="modal-input"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="modal-label">Last Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="currentUser.lastName"
+              name="lastName"
+              class="modal-input"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="modal-label">Email *</label>
+          <input
+            type="email"
+            [(ngModel)]="currentUser.email"
+            name="email"
+            class="modal-input"
+            required
+          />
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="modal-label">Department *</label>
+            <select
+              [(ngModel)]="currentUser.department"
+              name="department"
+              class="modal-select"
+              required
+            >
+              <option value="">Select department</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Sales">Sales</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="modal-label">Role *</label>
+            <select [(ngModel)]="currentUser.role" name="role" class="modal-select" required>
+              <option value="Employee">Employee</option>
+              <option value="Manager">Manager</option>
+              <option value="Travel Admin">Travel Admin</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="modal-label">Manager</label>
+          <select [(ngModel)]="currentUser.manager" name="manager" class="modal-select">
+            <option value="">Select manager</option>
+            <option *ngFor="let manager of managers" [value]="manager">{{ manager }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="modal-label">Status</label>
+          <select [(ngModel)]="currentUser.status" name="status" class="modal-select">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" (click)="closeModal()" class="btn-cancel">Cancel</button>
+      <button type="button" (click)="saveUser()" class="btn-submit">
+        {{ modalMode === 'add' ? 'Add User' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</div>

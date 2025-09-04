@@ -1,0 +1,107 @@
+<div class="login-background">
+  <div class="main-container">
+    <div class="image-container">
+      <img src="assets/travelling.png" alt="" class="responsive-image" />
+    </div>
+
+    <div class="form-container">
+      <h2>Sign up to get started</h2>
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <!-- First Name and Last Name in a row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" formControlName="firstName" placeholder="John" />
+            <div class="error-message" *ngIf="firstName?.touched && firstName?.errors">
+              <small class="text-danger" *ngIf="firstName?.errors?.['required']"
+                >First name is required</small
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" formControlName="lastName" placeholder="Doe" />
+            <div class="error-message" *ngIf="lastName?.touched && lastName?.errors">
+              <small class="text-danger" *ngIf="lastName?.errors?.['required']"
+                >Last name is required</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Address -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" formControlName="email" placeholder="you@example.com" />
+          <div class="error-message" *ngIf="email?.touched && email?.errors">
+            <small class="text-danger" *ngIf="email?.errors?.['required']">Email is required</small>
+            <small class="text-danger" *ngIf="email?.errors?.['email']"
+              >Please enter a valid email</small
+            >
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select id="role" formControlName="role">
+            <option value="">Select a role</option>
+            <option *ngFor="let role of userRoles" [value]="role">{{ role }}</option>
+          </select>
+          <div class="error-message" *ngIf="role?.touched && role?.errors">
+            <small class="text-danger" *ngIf="role?.errors?.['required']">Role is required</small>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" formControlName="password" placeholder="********" />
+          <div class="error-message" *ngIf="password?.touched && password?.errors">
+            <small class="text-danger" *ngIf="password?.errors?.['required']"
+              >Password is required</small
+            >
+            <small class="text-danger" *ngIf="password?.errors?.['minlength']"
+              >Password must be at least 6 characters</small
+            >
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            placeholder="********"
+          />
+          <div
+            class="error-message"
+            *ngIf="
+              confirmPassword?.touched &&
+              (confirmPassword?.errors || signupForm.errors?.['mismatch'])
+            "
+          >
+            <small class="text-danger" *ngIf="confirmPassword?.errors?.['required']"
+              >Please confirm your password</small
+            >
+            <small class="text-danger" *ngIf="signupForm.errors?.['mismatch']"
+              >Passwords do not match</small
+            >
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" [disabled]="signupForm.invalid">Create Account</button>
+
+        <!-- Login Link -->
+        <div class="signup-link">
+          <p>Already have an account? <a [routerLink]="['/login']">Log in</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+
+> frontend@0.0.0 start
+> ng serve
+
+Tailwind CSS configuration file found (tailwind.config.js) but the 'tailwindcss' package is not installed. To enable Tailwind CSS, please install the 'tailwindcss' package.
+❯ Building...
+✔ Building...
+Initial chunk files | Names         |  Raw size
+main.js             | main          | 351.52 kB | 
+styles.css          | styles        | 244 bytes | 
+polyfills.js        | polyfills     |  95 bytes | 
+
+                    | Initial total | 351.86 kB
+
+Application bundle generation complete. [6.123 seconds]
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  ➜  Local:   http://localhost:4200/

@@ -1,0 +1,400 @@
+<div class="employee-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">✈</span>
+        <div>
+          <div class="sidebar-title">Travel Desk</div>
+          <div class="sidebar-subtitle">Employee Portal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <p class="nav-section-title">NAVIGATION</p>
+        <div class="nav-list">
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'dashboard'"
+            (click)="setActiveSection('dashboard')"
+          >
+            <span class="nav-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            class="nav-item"
+            [class.active]="activeSection === 'history'"
+            (click)="setActiveSection('history')"
+          >
+            <span class="nav-icon">📋</span>
+            <span>History Details</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Profile at bottom -->
+    <div class="sidebar-profile">
+      <div class="profile-info">
+        <div class="profile-avatar">AA</div>
+        <div class="profile-details">
+          <div class="profile-name">{{ employee.name }}</div>
+          <div class="profile-role">Employee</div>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-info">
+        <div class="header-title">Employee Dashboard</div>
+        <div class="header-desc">Manage your travel requests</div>
+      </div>
+      <div class="header-profile">
+        <div class="profile-mini-avatar">AA</div>
+        <div class="profile-details">
+          <div class="profile-name">{{ employee.name }}</div>
+          <div class="profile-role">Employee</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- New Travel Request Section -->
+      <section *ngIf="activeSection === 'dashboard'" class="content-section">
+        <div class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">Create New Travel Request</h2>
+            <p class="form-subtitle">Submit a new travel request for approval</p>
+          </div>
+
+          <form class="travel-form" (ngSubmit)="submitRequest()" #travelForm="ngForm">
+            <!-- Basic Information -->
+            <div class="form-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Employee ID</label>
+                  <input type="text" [value]="employee.id" readonly class="form-input readonly" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Employee Name</label>
+                  <input type="text" [value]="employee.name" readonly class="form-input readonly" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Project Name *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newRequest.projectName"
+                    name="projectName"
+                    placeholder="Enter project name"
+                    class="form-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Department Name</label>
+                  <input
+                    type="text"
+                    [value]="employee.department"
+                    readonly
+                    class="form-input readonly"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Reason for Travelling *</label>
+                <textarea
+                  [(ngModel)]="newRequest.reasonForTravelling"
+                  name="reason"
+                  placeholder="Enter reason for travel"
+                  class="form-textarea"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Type of Booking *</label>
+                <select
+                  [(ngModel)]="newRequest.bookingType"
+                  name="bookingType"
+                  (change)="onBookingTypeChange()"
+                  class="form-select"
+                  required
+                >
+                  <option value="">Select booking type</option>
+                  <option value="air">Air ticket only</option>
+                  <option value="hotel">Hotel only</option>
+                  <option value="both">Air Ticket + Hotel Both</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Flight Details Section -->
+            <div *ngIf="showFlightFields" class="form-section">
+              <h3 class="section-title">Flight Details</h3>
+              <div class="form-group">
+                <label class="form-label">Flight Type *</label>
+                <select
+                  [(ngModel)]="newRequest.flightType"
+                  name="flightType"
+                  class="form-select"
+                  required
+                >
+                  <option value="">Select flight type</option>
+                  <option value="domestic">Domestic</option>
+                  <option value="international">International</option>
+                </select>
+              </div>
+
+              <!-- Domestic Flight Fields -->
+              <div *ngIf="newRequest.flightType === 'domestic'" class="domestic-fields">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Aadhar Card Number *</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="newRequest.aadharCard"
+                      name="aadharCard"
+                      placeholder="Enter Aadhar number"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Travel Date *</label>
+                    <input
+                      type="date"
+                      [(ngModel)]="newRequest.flightDate"
+                      name="flightDate"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- International Flight Fields -->
+              <div *ngIf="newRequest.flightType === 'international'" class="international-fields">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Passport Number *</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="newRequest.passportNumber"
+                      name="passportNumber"
+                      placeholder="Enter passport number"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Travel Date *</label>
+                    <input
+                      type="date"
+                      [(ngModel)]="newRequest.flightDate"
+                      name="intFlightDate"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Upload Passport File</label>
+                    <input
+                      type="file"
+                      (change)="onFilesSelected($event)"
+                      accept=".pdf,.jpg,.png"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Upload Visa File</label>
+                    <input
+                      type="file"
+                      (change)="onFilesSelected($event)"
+                      accept=".pdf,.jpg,.png"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Aadhar Card Number *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newRequest.aadharCard"
+                    name="intAadharCard"
+                    placeholder="Enter Aadhar number"
+                    class="form-input"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Hotel Details Section -->
+            <div *ngIf="showHotelFields" class="form-section">
+              <h3 class="section-title">Hotel Details</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Check-in Date *</label>
+                  <input
+                    type="date"
+                    [(ngModel)]="newRequest.checkinDate"
+                    name="checkinDate"
+                    class="form-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Days of Stay *</label>
+                  <input
+                    type="number"
+                    [(ngModel)]="newRequest.daysOfStay"
+                    name="daysOfStay"
+                    min="1"
+                    placeholder="Enter number of days"
+                    class="form-input"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Meal Required *</label>
+                  <select
+                    [(ngModel)]="newRequest.mealRequired"
+                    name="mealRequired"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select meal option</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Meal Preference *</label>
+                  <select
+                    [(ngModel)]="newRequest.mealPreference"
+                    name="mealPreference"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select preference</option>
+                    <option value="veg">Vegetarian</option>
+                    <option value="nonveg">Non-Vegetarian</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload Documents Section -->
+            <div class="form-section">
+              <h3 class="section-title">Upload Documents</h3>
+              <div class="upload-area" (click)="triggerFileInput()">
+                <div class="upload-content">
+                  <div class="upload-icon">📁</div>
+                  <p class="upload-text">Drag and drop files here or click to browse</p>
+                  <input
+                    #fileInput
+                    type="file"
+                    style="display: none"
+                    multiple
+                    (change)="onFilesSelected($event)"
+                  />
+                  <button type="button" class="btn-upload">+ Add Documents</button>
+                </div>
+              </div>
+
+              <!-- File List -->
+              <div *ngIf="uploadedFiles.length > 0" class="file-list">
+                <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
+                  <span class="file-name">{{ file.name }}</span>
+                  <button type="button" (click)="removeFile(i)" class="btn-remove">Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" (click)="resetForm()" class="btn-cancel">Cancel</button>
+              <button type="button" (click)="submitRequest()" class="btn-submit">
+                Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- History Details Section -->
+      <section *ngIf="activeSection === 'history'" class="content-section">
+        <div class="history-container">
+          <div class="history-header">
+            <h2 class="form-title">Travel Request History</h2>
+            <p class="form-subtitle">View all your past travel requests and their status</p>
+          </div>
+
+          <div class="table-container">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Project Name</th>
+                  <th>Booking Type</th>
+                  <th>Date Submitted</th>
+                  <th>Status</th>
+                  <th>Comments</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let req of history">
+                  <td class="request-id">{{ req.requestId }}</td>
+                  <td>{{ req.projectName }}</td>
+                  <td>{{ req.typeOfBooking }}</td>
+                  <td>{{ req.dates }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="'badge-' + req.status.toLowerCase()">
+                      {{ req.status }}
+                    </span>
+                  </td>
+                  <td>{{ req.status }}</td>
+                  <td class="actions-cell">
+                    <div class="action-buttons">
+                      <button
+                        *ngIf="req.status !== 'Approved'"
+                        (click)="editRequest(req.requestId)"
+                        class="btn-action edit"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        *ngIf="req.status === 'Approved'"
+                        (click)="viewRequest(req.requestId)"
+                        class="btn-action view"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
