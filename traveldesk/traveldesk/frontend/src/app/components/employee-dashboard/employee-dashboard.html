@@ -213,7 +213,6 @@
                     <label class="form-label">Upload Passport File</label>
                     <input
                       type="file"
-                      (change)="onFilesSelected($event)"
                       accept=".pdf,.jpg,.png"
                       class="form-input"
                     />
@@ -222,7 +221,6 @@
                     <label class="form-label">Upload Visa File</label>
                     <input
                       type="file"
-                      (change)="onFilesSelected($event)"
                       accept=".pdf,.jpg,.png"
                       class="form-input"
                     />
@@ -314,7 +312,7 @@
                     multiple
                     (change)="onFilesSelected($event)"
                   />
-                  <button type="button" class="btn-upload">+ Add Documents</button>
+                  <button type="button" class="btn-upload" (click)="triggerFileInput()">+ Add Documents</button>
                 </div>
               </div>
 
@@ -375,14 +373,12 @@
                     <div class="action-buttons">
                       <button
                         *ngIf="req.status !== 'Approved'"
-                        (click)="editRequest(req.requestId)"
                         class="btn-action edit"
                       >
                         Edit
                       </button>
                       <button
                         *ngIf="req.status === 'Approved'"
-                        (click)="viewRequest(req.requestId)"
                         class="btn-action view"
                       >
                         View Details

@@ -121,7 +121,7 @@ export class EmployeeDashboard implements OnInit {
         
         this.resetForm();
         this.loadMyRequests();
-        this.activeSection = 'requests';
+        this.activeSection = 'history';
         this.isSubmitting = false;
         alert('Travel request submitted successfully! Your manager will be notified.');
       },
@@ -132,6 +132,11 @@ export class EmployeeDashboard implements OnInit {
         alert('Error submitting request: ' + (error.error?.message || 'Please try again.'));
       }
     });
+  }
+
+  onBookingTypeChange(): void {
+    this.showFlightFields = this.newRequest.bookingType === 'air' || this.newRequest.bookingType === 'both';
+    this.showHotelFields = this.newRequest.bookingType === 'hotel' || this.newRequest.bookingType === 'both';
   }
 
   resetForm() {
@@ -152,43 +157,37 @@ export class EmployeeDashboard implements OnInit {
       mealPreference: ''
     };
     this.uploadedFiles = [];
-  }
-
-  onBookingTypeChange(): void {
-    this.showFlightFields = this.newRequest.typeOfBooking === 'Flight' || this.newRequest.typeOfBooking === 'Both';
-    this.showHotelFields = this.newRequest.typeOfBooking === 'Hotel' || this.newRequest.typeOfBooking === 'Both';
-  }
-
-  onFileSelected(event: any): void {
-    const files = event.target.files;
-    if (files) {
-      this.uploadedFiles = Array.from(files);
-    }
-  }
-
-  onFilesSelected(event: any): void {
-    this.onFileSelected(event);
-  }
-
-  removeFile(index: number): void {
-    this.uploadedFiles.splice(index, 1);
+    this.showFlightFields = false;
+    this.showHotelFields = false;
   }
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
 
+  onFilesSelected(event: any): void {
+    const files = event.target.files;
+    if (files) {
+      this.uploadedFiles = Array.from(files);
+    }
+  }
+
+  removeFile(index: number): void {
+    this.uploadedFiles.splice(index, 1);
+  }
+
   editRequest(requestId: any): void {
     console.log('Edit request:', requestId);
+    // Add edit functionality here
   }
 
   viewRequest(requestId: any): void {
     console.log('View request:', requestId);
+    // Add view functionality here
   }
 
   signOut() {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('userRole');
     this.router.navigate(['/login']);
   }
 }
