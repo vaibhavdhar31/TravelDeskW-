@@ -105,16 +105,15 @@
     </div>
 
     <!-- Assigned Requests Table -->
-    <section class="assigned-section">
+    <section class="assigned-section" *ngIf="activeSection === 'dashboard'">
       <div class="assigned-header">
         <div class="section-info">
-          <div class="assigned-title">Assigned Requests</div>
+          <div class="assigned-title">Pending Requests</div>
           <div class="assigned-desc">Review and approve travel requests from your team</div>
         </div>
         <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterRequests()">
           <option value="">All Status</option>
           <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
           <option value="Returned">Returned</option>
         </select>
       </div>
@@ -162,8 +161,50 @@
                     Return
                   </button>
                 </div>
-                <span class="completed-text" *ngIf="request.status === 'Approved'">Completed</span>
+                <span class="completed-text" *ngIf="request.status !== 'Pending'">Completed</span>
               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Approved Requests Section -->
+    <section class="assigned-section" *ngIf="activeSection === 'requests'">
+      <div class="assigned-header">
+        <div class="section-info">
+          <div class="assigned-title">Approved Requests</div>
+          <div class="assigned-desc">Requests you have approved and sent to Travel Admin</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="assigned-table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Employee</th>
+              <th>Project</th>
+              <th>Booking Type</th>
+              <th>Date Approved</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of approvedRequests">
+              <td class="request-id">{{ request.id }}</td>
+              <td>{{ request.employee }}</td>
+              <td>{{ request.project }}</td>
+              <td>{{ request.bookingType }}</td>
+              <td>{{ request.dateSubmitted }}</td>
+              <td>
+                <span class="badge badge-approved">
+                  {{ request.status }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="approvedRequests.length === 0">
+              <td colspan="6" class="no-data">No approved requests found</td>
             </tr>
           </tbody>
         </table>

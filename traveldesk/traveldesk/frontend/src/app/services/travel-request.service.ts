@@ -60,6 +60,18 @@ export class TravelRequestService {
     });
   }
 
+  getApprovedRequests(): Observable<TravelRequest[]> {
+    return this.http.get<TravelRequest[]>(`${this.apiUrl}/manager/my-requests`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  managerAction(requestId: number, actionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/manager/action-request/${requestId}`, actionData, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   getManagerRequests(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/manager/my-requests`, {
       headers: this.getAuthHeaders()
@@ -89,6 +101,13 @@ export class TravelRequestService {
   // Travel Admin endpoints
   getAllRequests(): Observable<TravelRequest[]> {
     return this.http.get<TravelRequest[]>(`${this.apiUrl}/TravelAdmin/all-requests`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // Travel Admin action (approve, book, complete, etc.)
+  travelAdminAction(requestId: number, actionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/TravelAdmin/action-request/${requestId}`, actionData, {
       headers: this.getAuthHeaders()
     });
   }

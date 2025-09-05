@@ -685,3 +685,10 @@
     padding-right: 16px;
   }
 }
+
+.no-data {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem;
+}

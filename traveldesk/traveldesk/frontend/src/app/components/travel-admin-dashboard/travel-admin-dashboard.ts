@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef, OnInit, ChangeDetectorRef } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmailService } from '../../services/email.service';
+import { TravelRequestService } from '../../services/travel-request.service';
 
 interface TravelRequest {
   id: string;
@@ -10,6 +11,7 @@ interface TravelRequest {
   bookingType: string;
   approvedDate: string;
   status: 'Pending Travel Admin Approval' | 'Approved' | 'Disapproved' | 'Booked' | 'Completed' | 'Pending Booking';
+  originalId: number;
 }
 
 interface Stats {
@@ -42,31 +44,72 @@ export class TravelAdminDashboard implements OnInit {
 
   requests: TravelRequest[] = [];
 
+  completedRequests: TravelRequest[] = [];
+
   ngOnInit() {
+    console.log('🔧 Travel Admin dashboard initializing...');
     this.loadApprovedRequests();
-    // Auto-refresh disabled to prevent overwriting status changes
-    // setInterval(() => {
-    //   this.loadApprovedRequests();
-    // }, 30000);
+    this.loadCompletedRequests();
+    // Auto-refresh every 30 seconds (only active requests)
+    setInterval(() => {
+      this.loadApprovedRequests();
+    }, 30000);
   }
 
   loadApprovedRequests() {
-    // Load approved requests from localStorage
-    const travelAdminQueue = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
-    console.log('Travel Admin loading queue:', travelAdminQueue);
+    console.log('🔧 Travel Admin loading requests from API...');
     
-    this.requests = travelAdminQueue.map((req: any, index: number) => ({
-      id: `TR${(index + 1).toString().padStart(3, '0')}`,
-      employee: 'Employee User',
-      manager: 'Manager User', 
-      bookingType: req.typeOfBooking || 'Flight',
-      approvedDate: req.approvedDate ? new Date(req.approvedDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      status: (req.travelAdminStatus || 'Pending Travel Admin Approval') as 'Pending Travel Admin Approval' | 'Approved' | 'Disapproved' | 'Booked' | 'Completed'
-    }));
+    this.travelRequestService.getAllRequests().subscribe({
+      next: (requests: any) => {
+        console.log('🔧 Travel Admin received requests:', requests);
+        
+        // Filter requests that need travel admin attention (Manager Approved, Approved, Booked)
+        const travelAdminRequests = requests.filter((req: any) => 
+          req.status === 'Manager Approved' || 
+          req.status === 'Approved' || 
+          req.status === 'Booked'
+        );
+        console.log('🔧 Travel Admin requests found:', travelAdminRequests.length);
+        
+        this.requests = travelAdminRequests.map((req: any) => {
+          let displayStatus: any;
+          switch(req.status) {
+            case 'Manager Approved':
+              displayStatus = 'Pending Travel Admin Approval';
+              break;
+            case 'Approved':
+              displayStatus = 'Approved';
+              break;
+            case 'Booked':
+              displayStatus = 'Booked';
+              break;
+            default:
+              displayStatus = req.status;
+          }
+          
+          return {
+            id: `TR${req.requestId.toString().padStart(3, '0')}`,
+            employee: req.user?.email || 'Employee User',
+            manager: 'Manager User',
+            bookingType: req.typeOfBooking || 'Flight',
+            approvedDate: new Date(req.updatedAt || req.createdAt || Date.now()).toISOString().split('T')[0],
+            status: displayStatus,
+            originalId: req.requestId
+          };
+        });
+        
+        this.calculateStats();
+        console.log('🔧 Travel Admin processed requests:', this.requests);
+      },
+      error: (error: any) => {
+        console.error('🔧 Travel Admin error loading requests:', error);
+        this.requests = [];
+        this.calculateStats();
+      }
+    });
+  }
 
-    console.log('Travel Admin processed requests:', this.requests);
-
-    // Update stats
+  calculateStats() {
     this.stats = {
       pendingTravelAdminApproval: this.requests.filter(r => r.status === 'Pending Travel Admin Approval').length,
       approvedRequests: this.requests.filter(r => r.status === 'Approved').length,
@@ -75,22 +118,7 @@ export class TravelAdminDashboard implements OnInit {
       pendingBooking: this.requests.filter(r => r.status === 'Pending Booking').length,
       completed: this.requests.filter(r => r.status === 'Completed').length,
     };
-
-    // If no approved requests, show default mock data
-    if (this.requests.length === 0) {
-      this.requests = [
-        {
-          id: 'TR001',
-          employee: 'No requests yet',
-          manager: 'Submit and approve requests',
-          bookingType: 'to see them here',
-          approvedDate: new Date().toISOString().split('T')[0],
-          status: 'Pending Travel Admin Approval',
-        }
-      ];
-      this.stats.pendingTravelAdminApproval = 0;
-    }
-
+    
     // Apply current filter after loading data
     this.filterRequests();
   }
@@ -107,7 +135,11 @@ export class TravelAdminDashboard implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private emailService: EmailService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private emailService: EmailService, 
+    private cdr: ChangeDetectorRef,
+    private travelRequestService: TravelRequestService
+  ) {}
 
   setActiveSection(section: string): void {
     this.activeSection = section;
@@ -161,185 +193,74 @@ export class TravelAdminDashboard implements OnInit {
   }
 
   submitAction(): void {
-    console.log('🔧 Submit action called:', { 
-      currentAction: this.currentAction, 
-      currentRequestId: this.currentRequestId,
-      modalComments: this.modalComments 
-    });
-    
     if (!this.modalComments.trim()) {
       alert('Comments are required for this action.');
       return;
     }
 
     const requestIndex = this.requests.findIndex((r) => r.id === this.currentRequestId);
-    console.log('🔧 Found request index:', requestIndex, 'for ID:', this.currentRequestId);
-    
-    if (requestIndex !== -1) {
-      let newStatus: string = '';
-      
-      console.log('🔧 Current request before action:', this.requests[requestIndex]);
-      console.log('🔧 Action to perform:', this.currentAction);
-      
-      switch (this.currentAction) {
-        case 'approve':
-          // Travel admin approves the request
-          console.log('🔧 Approving request:', this.requests[requestIndex]);
-          this.requests[requestIndex].status = 'Approved';
-          newStatus = 'Approved';
-          this.updateStats('approve');
-          console.log('🔧 Request approved, new status:', newStatus);
-          
-          // IMMEDIATELY update localStorage to prevent auto-refresh from overwriting
-          const travelAdminQueue = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
-          const queueIndex = travelAdminQueue.findIndex((req: any) => 
-            req.typeOfBooking === this.requests[requestIndex].bookingType
-          );
-          if (queueIndex !== -1) {
-            travelAdminQueue[queueIndex].travelAdminStatus = 'Approved';
-            localStorage.setItem('travelAdminQueue', JSON.stringify(travelAdminQueue));
-            console.log('🔧 IMMEDIATELY updated localStorage for approve');
-          }
-          break;
-        case 'disapprove':
-          // Travel admin disapproves the request
-          this.requests[requestIndex].status = 'Disapproved';
-          newStatus = 'Disapproved';
-          this.updateStats('disapprove');
-          break;
-        case 'book':
-          // Only allow booking if already approved by travel admin
-          console.log('🔧 Booking request:', this.requests[requestIndex]);
-          console.log('🔧 Current status:', this.requests[requestIndex].status);
-          
-          if (this.requests[requestIndex].status !== 'Approved') {
-            alert('Request must be approved by Travel Admin before booking.');
-            console.log('❌ Booking failed - status is not Approved:', this.requests[requestIndex].status);
-            return;
-          }
-          if (this.uploadedFiles.length === 0) {
-            alert('Please upload tickets/documents for booking.');
-            console.log('❌ Booking failed - no files uploaded');
-            return;
-          }
-          this.requests[requestIndex].status = 'Booked';
-          newStatus = 'Booked';
-          this.updateStats('book');
-          console.log('🔧 Request booked, new status:', newStatus);
-          
-          // IMMEDIATELY update localStorage to prevent auto-refresh from overwriting
-          const travelAdminQueueBook = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
-          const queueIndexBook = travelAdminQueueBook.findIndex((req: any) => 
-            req.typeOfBooking === this.requests[requestIndex].bookingType
-          );
-          if (queueIndexBook !== -1) {
-            travelAdminQueueBook[queueIndexBook].travelAdminStatus = 'Booked';
-            localStorage.setItem('travelAdminQueue', JSON.stringify(travelAdminQueueBook));
-            console.log('🔧 IMMEDIATELY updated localStorage for book');
-          }
-          break;
-        case 'complete':
-          console.log('🔧 Completing request:', this.requests[requestIndex]);
-          this.requests[requestIndex].status = 'Completed';
-          newStatus = 'Completed';
-          this.updateStats('complete');
-          console.log('🔧 Request completed, new status:', newStatus);
-          
-          // IMMEDIATELY update localStorage to prevent auto-refresh from overwriting
-          const travelAdminQueueComplete = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
-          const queueIndexComplete = travelAdminQueueComplete.findIndex((req: any) => 
-            req.typeOfBooking === this.requests[requestIndex].bookingType
-          );
-          if (queueIndexComplete !== -1) {
-            travelAdminQueueComplete[queueIndexComplete].travelAdminStatus = 'Completed';
-            localStorage.setItem('travelAdminQueue', JSON.stringify(travelAdminQueueComplete));
-            console.log('🔧 IMMEDIATELY updated localStorage for complete');
-          }
-          break;
-        case 'returnManager':
-          this.requests[requestIndex].status = 'Pending Travel Admin Approval';
-          newStatus = 'Returned to Manager';
-          break;
-        default:
-          console.error('🔧 Unknown action:', this.currentAction);
-          alert('Unknown action: ' + this.currentAction);
-          return;
-      }
-
-      // Get localStorage data and current request info
-      const submittedRequests = JSON.parse(localStorage.getItem('submittedRequests') || '[]');
-      const travelAdminQueue = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
-      const currentRequestData = this.requests[requestIndex];
-
-      // Update travelAdminQueue with travel admin status FIRST
-      const queueIndex = travelAdminQueue.findIndex((req: any) => 
-        req.projectName === currentRequestData.bookingType
-      );
-      if (queueIndex !== -1) {
-        travelAdminQueue[queueIndex].travelAdminStatus = this.requests[requestIndex].status;
-        travelAdminQueue[queueIndex].travelAdminComments = this.modalComments;
-        localStorage.setItem('travelAdminQueue', JSON.stringify(travelAdminQueue));
-        console.log('Updated travelAdminQueue status to:', this.requests[requestIndex].status);
-      } else {
-        console.warn('Could not find request to update in travelAdminQueue');
-      }
-
-      // Sync status back to employee's view
-      // Find and update the original request in submittedRequests by multiple criteria
-      const originalRequestIndex = submittedRequests.findIndex((req: any, index: number) => {
-        // Try to match by index first (most reliable for small datasets)
-        const queueRequest = travelAdminQueue.find((q: any) => 
-          q.projectName === req.projectName && 
-          (q.travelAdminStatus === currentRequestData.status || 
-           q.travelAdminStatus === 'Pending Travel Admin Approval' ||
-           q.travelAdminStatus === 'Approved' ||
-           q.travelAdminStatus === 'Booked')
-        );
-        return queueRequest !== undefined;
-      });
-      
-      if (originalRequestIndex !== -1) {
-        console.log('🔧 BEFORE update - submittedRequests[' + originalRequestIndex + ']:', submittedRequests[originalRequestIndex]);
-        submittedRequests[originalRequestIndex].status = newStatus;
-        submittedRequests[originalRequestIndex].travelAdminComments = this.modalComments;
-        submittedRequests[originalRequestIndex].completedDate = new Date().toISOString();
-        localStorage.setItem('submittedRequests', JSON.stringify(submittedRequests));
-        console.log('🔧 AFTER update - submittedRequests[' + originalRequestIndex + ']:', submittedRequests[originalRequestIndex]);
-        console.log('Updated employee request status to:', newStatus);
-      } else {
-        console.warn('Could not find original request to update in submittedRequests');
-        console.log('🔧 Available submittedRequests:', submittedRequests);
-        console.log('🔧 Looking for bookingType:', currentRequestData.bookingType);
-      }
-
-      // Send email notification to employee when completed
-      if (this.currentAction === 'complete') {
-        this.emailService.sendCompletionNotification({
-          requestId: this.currentRequestId,
-          employeeName: 'Employee User',
-          employeeEmail: 'employee@company.com',
-          travelAdminComments: this.modalComments
-        }).subscribe({
-          next: () => console.log('Completion email sent to employee'),
-          error: (err) => console.warn('Email notification failed:', err)
-        });
-      }
+    if (requestIndex === -1) {
+      alert('Request not found.');
+      return;
     }
 
-    console.log(`${this.currentAction} action performed on ${this.currentRequestId}`, {
-      comments: this.modalComments,
-      files: this.uploadedFiles.map((f) => f.name),
-    });
+    const request = this.requests[requestIndex];
+    if (!request.originalId) {
+      alert('Invalid request ID.');
+      return;
+    }
 
-    // Apply filters to show updated status (don't reload from localStorage)
-    this.filterRequests();
-    
-    // Trigger change detection to update Booking History section
-    this.cdr.detectChanges();
-    console.log('🔧 Change detection triggered');
-    
-    this.closeModal();
-    alert(`Request ${this.currentRequestId} ${this.getActionPastTense()} successfully!`);
+    const actionData = {
+      action: this.currentAction,
+      comments: this.modalComments
+    };
+
+    // Validate booking requirements
+    if (this.currentAction === 'book' && this.uploadedFiles.length === 0) {
+      alert('Please upload tickets/documents for booking.');
+      return;
+    }
+
+    this.travelRequestService.travelAdminAction(request.originalId, actionData).subscribe({
+      next: (response) => {
+        console.log('🔧 Travel Admin action response:', response);
+        
+        // Update local status
+        switch (this.currentAction) {
+          case 'approve':
+            request.status = 'Approved';
+            this.updateStats('approve');
+            break;
+          case 'disapprove':
+            request.status = 'Disapproved';
+            this.updateStats('disapprove');
+            break;
+          case 'book':
+            request.status = 'Booked';
+            this.updateStats('book');
+            break;
+          case 'complete':
+            request.status = 'Completed';
+            this.updateStats('complete');
+            // Add to completed requests for booking history
+            this.completedRequests.push({...request});
+            // Remove from active requests
+            const requestIndex = this.requests.findIndex(r => r.id === request.id);
+            if (requestIndex !== -1) {
+              this.requests.splice(requestIndex, 1);
+            }
+            break;
+        }
+
+        this.filterRequests();
+        this.closeModal();
+        alert(`Request ${this.currentRequestId} ${this.getActionPastTense()} successfully!`);
+      },
+      error: (error) => {
+        console.error('🔧 Travel Admin action error:', error);
+        alert('Error processing request. Please try again.');
+      }
+    });
   }
 
   private updateStats(action: string): void {
@@ -420,12 +341,64 @@ export class TravelAdminDashboard implements OnInit {
     alert(`View full details for ${requestId}`);
   }
 
+  loadCompletedRequests() {
+    this.travelRequestService.getAllRequests().subscribe({
+      next: (requests: any) => {
+        const completedRequests = requests.filter((req: any) => req.status === 'Completed');
+        
+        this.completedRequests = completedRequests.map((req: any) => ({
+          id: `TR${req.requestId.toString().padStart(3, '0')}`,
+          employee: req.user?.email || 'Employee User',
+          manager: 'Manager User',
+          bookingType: req.typeOfBooking || 'Flight',
+          approvedDate: new Date(req.updatedAt || req.createdAt || Date.now()).toISOString().split('T')[0],
+          status: 'Completed' as any,
+          originalId: req.requestId
+        }));
+        
+        console.log('✅ Booking history loaded:', this.completedRequests.length, 'completed requests');
+      },
+      error: (error: any) => {
+        this.completedRequests = [];
+      }
+    });
+  }
+
   getCompletedRequests(): TravelRequest[] {
-    const completedRequests = this.requests.filter(request => request.status === 'Completed');
-    console.log('🔧 Getting completed requests:', completedRequests);
-    console.log('🔧 All requests:', this.requests);
-    console.log('🔧 Requests with status:', this.requests.map(r => ({ id: r.id, status: r.status })));
-    return completedRequests;
+    return this.completedRequests;
+  }
+
+  // Test method to verify booking history
+  testBookingHistory(): void {
+    console.log('🧪 TESTING BOOKING HISTORY');
+    console.log('🧪 Current requests:', this.requests);
+    console.log('🧪 Requests by status:');
+    
+    const statusCounts = {
+      'Pending Travel Admin Approval': 0,
+      'Approved': 0,
+      'Booked': 0,
+      'Completed': 0
+    };
+    
+    this.requests.forEach(req => {
+      statusCounts[req.status as keyof typeof statusCounts]++;
+      console.log(`🧪 ${req.id}: ${req.status}`);
+    });
+    
+    console.log('🧪 Status counts:', statusCounts);
+    
+    const completedRequests = this.getCompletedRequests();
+    console.log('🧪 Completed requests for booking history:', completedRequests.length);
+    console.log('🧪 Completed request details:', completedRequests);
+    
+    // Test if booking history section will show data
+    if (completedRequests.length > 0) {
+      console.log('✅ BOOKING HISTORY TEST PASSED - Has completed requests');
+    } else {
+      console.log('❌ BOOKING HISTORY TEST - No completed requests found');
+      console.log('💡 To test: Complete a request by going through the full workflow');
+    }
   }
 
   signOut(): void {
