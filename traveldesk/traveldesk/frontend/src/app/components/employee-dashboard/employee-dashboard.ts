@@ -119,6 +119,11 @@ export class EmployeeDashboard implements OnInit {
           error: (err) => console.warn('Email notification failed:', err)
         });
         
+        // Save to localStorage for manager dashboard
+        const submittedRequests = JSON.parse(localStorage.getItem('submittedRequests') || '[]');
+        submittedRequests.push(requestData);
+        localStorage.setItem('submittedRequests', JSON.stringify(submittedRequests));
+        
         this.resetForm();
         this.loadMyRequests();
         this.activeSection = 'requests';

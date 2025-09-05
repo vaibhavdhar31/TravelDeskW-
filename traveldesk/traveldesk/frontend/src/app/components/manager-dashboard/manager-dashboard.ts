@@ -54,11 +54,7 @@ export class ManagerDashboard implements OnInit {
     this.loadPendingRequests();
     // Auto-refresh every 30 seconds to check for new requests
     setInterval(() => {
-      if (this.activeSection === 'dashboard') {
-        this.loadPendingRequests();
-      } else if (this.activeSection === 'requests') {
-        this.loadAssignedRequests();
-      }
+      this.loadPendingRequests();
     }, 30000);
   }
 
@@ -81,36 +77,44 @@ export class ManagerDashboard implements OnInit {
       },
       error: (error) => {
         console.error('Error loading pending requests:', error);
-        this.requests = [];
-        this.filteredRequests = [];
-        this.updateStatsFromRequests();
-      }
-    });
-  }
-
-  loadAssignedRequests() {
-    console.log('Loading assigned requests for manager...');
-    this.travelRequestService.getManagerRequests().subscribe({
-      next: (requests) => {
-        console.log('Received assigned requests from API:', requests);
-        // Filter to show only approved requests
-        const approvedRequests = requests.filter(req => req.status === 'Approved');
-        this.requests = approvedRequests.map(req => ({
-          id: req.requestId?.toString() || '',
-          employee: 'Employee',
-          project: req.projectName,
-          bookingType: req.typeOfBooking,
-          dateSubmitted: new Date().toISOString().split('T')[0],
-          status: req.status as 'Approved'
-        }));
+        if (error.status === 404) {
+          console.warn('Manager API endpoint not found. Using mock data.');
+          // Get submitted requests from localStorage
+          const submittedRequests = JSON.parse(localStorage.getItem('submittedRequests') || '[]');
+          console.log('🔧 Manager loading submittedRequests:', submittedRequests);
+          
+          this.requests = submittedRequests
+            .map((req: any, index: number) => {
+              console.log('🔧 Processing request:', req.projectName, 'Status:', req.status);
+              return {
+                id: (index + 1).toString(),
+                employee: 'Employee User',
+                project: req.projectName || 'Unknown Project',
+                bookingType: req.typeOfBooking || 'Flight',
+                dateSubmitted: new Date().toISOString().split('T')[0],
+                status: req.status as 'Pending' | 'Approved' | 'Returned' | 'Booked' | 'Completed'
+              };
+            });
+          
+          console.log('🔧 Manager processed requests:', this.requests);
+          
+          // If no submitted requests, show default mock data
+          if (this.requests.length === 0) {
+            this.requests = [
+              {
+                id: '1',
+                employee: 'John Doe',
+                project: 'Project Alpha',
+                bookingType: 'Flight',
+                dateSubmitted: '2024-08-31',
+                status: 'Pending' as 'Pending'
+              }
+            ];
+          }
+        } else {
+          this.requests = [];
+        }
         this.filteredRequests = [...this.requests];
-        this.updateStatsFromRequests();
-        console.log('Processed approved requests:', this.requests);
-      },
-      error: (error) => {
-        console.error('Error loading assigned requests:', error);
-        this.requests = [];
-        this.filteredRequests = [];
         this.updateStatsFromRequests();
       }
     });
@@ -138,11 +142,6 @@ export class ManagerDashboard implements OnInit {
 
   setActiveSection(section: string): void {
     this.activeSection = section;
-    if (section === 'requests') {
-      this.loadAssignedRequests(); // Load approved requests
-    } else if (section === 'dashboard') {
-      this.loadPendingRequests(); // Load pending requests
-    }
   }
 
   signOut(): void {
@@ -209,38 +208,74 @@ export class ManagerDashboard implements OnInit {
     const requestId = parseInt(this.currentRequestId);
     
     if (this.currentAction === 'approve') {
-      // Call the .NET API to approve the request
-      const actionDto = {
-        action: 'approve',
-        comments: this.modalComments
-      };
+      // Handle approval locally since backend is not available
+      const submittedRequests = JSON.parse(localStorage.getItem('submittedRequests') || '[]');
       
-      this.travelRequestService.approveRequest(requestId).subscribe({
-        next: (response) => {
-          console.log('Request approved successfully:', response);
-          alert('Request approved successfully! Sent to Travel Admin for final confirmation.');
-          this.loadPendingRequests(); // Reload pending requests
-          this.closeModal();
-        },
-        error: (error) => {
-          console.error('Error approving request:', error);
-          alert('Error approving request. Please try again.');
-        }
-      });
+      // Find the request by matching the displayed request data
+      const currentRequest = this.requests.find(r => r.id === this.currentRequestId);
+      const requestIndex = submittedRequests.findIndex((req: any) => 
+        req.projectName === currentRequest?.project && req.status === 'Pending'
+      );
+      
+      if (requestIndex !== -1) {
+        submittedRequests[requestIndex].status = 'Approved';
+        submittedRequests[requestIndex].managerComments = this.modalComments;
+        submittedRequests[requestIndex].approvedDate = new Date().toISOString();
+        localStorage.setItem('submittedRequests', JSON.stringify(submittedRequests));
+        
+        // Move to travel admin queue
+        const travelAdminQueue = JSON.parse(localStorage.getItem('travelAdminQueue') || '[]');
+        const requestForTravelAdmin = {
+          ...submittedRequests[requestIndex],
+          travelAdminStatus: 'Pending Travel Admin Approval'  // Set initial status for travel admin
+        };
+        travelAdminQueue.push(requestForTravelAdmin);
+        localStorage.setItem('travelAdminQueue', JSON.stringify(travelAdminQueue));
+        
+        console.log('Request moved to travel admin queue:', requestForTravelAdmin);
+        
+        // Send email notification to travel admin
+        this.emailService.sendApprovalNotification({
+          requestId: this.currentRequestId,
+          employeeName: 'Employee User',
+          travelAdminEmail: 'traveladmin@company.com',
+          managerComments: this.modalComments
+        }).subscribe({
+          next: () => console.log('Email notification sent to travel admin'),
+          error: (err) => console.warn('Email notification failed:', err)
+        });
+        
+        alert('Request approved successfully! Sent to Travel Admin for final confirmation.');
+      } else {
+        console.error('Could not find request to approve');
+        alert('Error: Could not find the request to approve.');
+      }
+      
+      this.loadPendingRequests(); // Reload data
+      this.closeModal();
     } else if (this.currentAction === 'return') {
-      // Call the .NET API to return the request
-      this.travelRequestService.returnRequest(requestId, this.modalComments).subscribe({
-        next: (response) => {
-          console.log('Request returned successfully:', response);
-          alert('Request returned to employee for revision.');
-          this.loadPendingRequests(); // Reload data
-          this.closeModal();
-        },
-        error: (error) => {
-          console.error('Error returning request:', error);
-          alert('Error returning request. Please try again.');
-        }
-      });
+      // Handle return locally
+      const submittedRequests = JSON.parse(localStorage.getItem('submittedRequests') || '[]');
+      
+      // Find the request by matching the displayed request data
+      const currentRequest = this.requests.find(r => r.id === this.currentRequestId);
+      const requestIndex = submittedRequests.findIndex((req: any) => 
+        req.projectName === currentRequest?.project && req.status === 'Pending'
+      );
+      
+      if (requestIndex !== -1) {
+        submittedRequests[requestIndex].status = 'Returned';
+        submittedRequests[requestIndex].managerComments = this.modalComments;
+        localStorage.setItem('submittedRequests', JSON.stringify(submittedRequests));
+        
+        alert('Request returned to employee for revision.');
+      } else {
+        console.error('Could not find request to return');
+        alert('Error: Could not find the request to return.');
+      }
+      
+      this.loadPendingRequests(); // Reload data
+      this.closeModal();
     }
   }
 
