@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { AuthService } from '../services/auth';
+import { Auth } from '../services/auth';
 
 export interface LoginResponse {
   token: string;
@@ -24,7 +24,7 @@ export class Login implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
+    private authService: Auth,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
