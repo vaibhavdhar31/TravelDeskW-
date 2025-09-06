@@ -1,0 +1,47 @@
+@TravelDesk_Api_HostAddress = http://localhost:5088
+
+### Test Weather Forecast
+GET {{TravelDesk_Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+### Generate Password Hash
+GET {{TravelDesk_Api_HostAddress}}/api/auth/generate-hash?password=password123
+Accept: application/json
+
+### Login as Admin
+POST {{TravelDesk_Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@traveldesk.com",
+  "password": "password123"
+}
+
+### Login as HR
+POST {{TravelDesk_Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "hr@traveldesk.com",
+  "password": "password123"
+}
+
+### Login as Employee
+POST {{TravelDesk_Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "employee@traveldesk.com",
+  "password": "password123"
+}
+
+### Login as Manager
+POST {{TravelDesk_Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@traveldesk.com",
+  "password": "password123"
+}
+
+###

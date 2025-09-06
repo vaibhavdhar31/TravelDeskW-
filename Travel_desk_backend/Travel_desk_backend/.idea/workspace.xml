@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f197bed7-cd38-4662-bced-2239bff34780" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Context/TravelDeskContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Context/TravelDeskContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/AdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/AdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/AuthController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/AuthController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/EmployeeController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/EmployeeController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/ManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/TravelAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/TravelAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Controllers/WeatherForecastController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Controllers/WeatherForecastController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/ManagerActionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/ManagerActionDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822185103_intial.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822185103_intial.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822185844_SeedAllUsers.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822185844_SeedAllUsers.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822191155_CorrectPasswordHash.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822191155_CorrectPasswordHash.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822195339_AddUserFields.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250822195339_AddUserFields.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250823063408_AddTravelRequestsAndComments.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250823063408_AddTravelRequestsAndComments.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250823075019_AddManagerToRequest.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250823075019_AddManagerToRequest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824111958_UniquePasswordHashes.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824111958_UniquePasswordHashes.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824112422_UniquePassword.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824112422_UniquePassword.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824120448_UniquePasswordHashes1.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/20250824120448_UniquePasswordHashes1.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Migrations/TravelDeskContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Migrations/TravelDeskContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Models/RequestComment.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Models/RequestComment.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Models/Role.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Models/Role.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Models/TravelRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Models/TravelRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Models/User.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Models/User.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/TravelAdminActionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/TravelAdminActionDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.csproj.user" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.csproj.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.http" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/TravelDesk_Api.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/TravelRequestDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/TravelRequestDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/UserDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/UserDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/WeatherForecast.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/WeatherForecast.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/appsettings.Development.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TravelDesk_Api/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/TravelDesk_Api/appsettings.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Mukul962832"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/shruti7877/Travel_desk_backend.git",
+    "accountId": "0213aba2-05ea-4742-a31a-9bfb49125b2f"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="31vaPZVUvRP8qafZBvplp6UTVyQ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "vcs.Subversion"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f197bed7-cd38-4662-bced-2239bff34780" name="Changes" comment="" />
+      <created>1756406978010</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1756406978010</updated>
+    </task>
+    <servers />
+  </component>
+</project>
