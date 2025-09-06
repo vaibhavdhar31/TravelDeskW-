@@ -80,9 +80,10 @@ Thumbs.db
 desktop.ini
 
 # ===== DEVELOPMENT FILES =====
-# Chat sessions and documentation (keep for reference)
-# CHAT_SESSION_*.md
-# *.md files are kept for documentation
+# Chat sessions and documentation
+CHAT_SESSION_*.md
+*COMPLETION_SUMMARY.md
+*SESSION_SUMMARY.md
 
 # Temporary SQL scripts (keep setup scripts)
 # setup-database.sql is kept
