@@ -1,0 +1,99 @@
+# =============================================================================
+# SRS Travel Desk - Root .gitignore
+# =============================================================================
+
+# ===== BACKEND (.NET Core) =====
+# Build results
+Travel_desk_backend/**/bin/
+Travel_desk_backend/**/obj/
+Travel_desk_backend/**/.vs/
+Travel_desk_backend/**/packages/
+Travel_desk_backend/**/*.user
+Travel_desk_backend/**/*.suo
+Travel_desk_backend/**/*.cache
+Travel_desk_backend/**/*.dll
+Travel_desk_backend/**/*.pdb
+Travel_desk_backend/**/*.exe
+
+# Entity Framework
+Travel_desk_backend/**/Migrations/
+
+# Logs
+Travel_desk_backend/**/*.log
+
+# ===== FRONTEND (Angular) =====
+# Dependencies
+traveldesk/**/node_modules/
+traveldesk/**/.angular/
+traveldesk/**/dist/
+
+# Build outputs
+traveldesk/**/build/
+traveldesk/**/.tmp/
+traveldesk/**/.sass-cache/
+
+# IDE files
+traveldesk/**/.vscode/
+traveldesk/**/.idea/
+
+# Logs
+traveldesk/**/*.log
+traveldesk/**/npm-debug.log*
+traveldesk/**/yarn-debug.log*
+traveldesk/**/yarn-error.log*
+
+# ===== DOCKER =====
+# Docker volumes
+.docker/
+
+# ===== DATABASE =====
+# Database files
+*.mdf
+*.ldf
+*.sqlite
+*.db
+
+# ===== ENVIRONMENT & SECRETS =====
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Secrets
+appsettings.Production.json
+secrets.json
+
+# ===== SYSTEM FILES =====
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+*.tmp
+*.temp
+desktop.ini
+
+# ===== DEVELOPMENT FILES =====
+# Chat sessions and documentation (keep for reference)
+# CHAT_SESSION_*.md
+# *.md files are kept for documentation
+
+# Temporary SQL scripts (keep setup scripts)
+# setup-database.sql is kept
+temp-*.sql
+debug-*.sql
+
+# Test files
+test-*.js
+*-test.js
+debug-*.js
+
+# ===== LOGS =====
+*.log
+logs/

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "TravelDesk123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  mock-backend:
+    build:
+      context: ./traveldesk/traveldesk
+    ports:
+      - "5088:5088"
+    volumes:
+      - ./traveldesk/traveldesk:/app
+      - /app/node_modules
+    environment:
+      - JWT_SECRET=TravelDesk2024SecretKeyForJWTTokenGeneration123456789
+      - JWT_ISSUER=TravelDeskApi
+      - JWT_AUDIENCE=TravelDeskClient
+
+  frontend-dev:
+    build:
+      context: ./traveldesk/traveldesk/frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./traveldesk/traveldesk/frontend:/app
+      - /app/node_modules
+    depends_on:
+      - mock-backend
+
+volumes:
+  sqldata:

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "TravelDesk123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - travel-network
+
+  backend:
+    build: 
+      context: ./Travel_desk_backend/Travel_desk_backend/TravelDesk_Api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=database;Database=TravelDeskDB;User Id=sa;Password=TravelDesk123!;TrustServerCertificate=true;
+    ports:
+      - "5000:8080"
+    depends_on:
+      - database
+    networks:
+      - travel-network
+
+  frontend:
+    build:
+      context: ./traveldesk/traveldesk/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - travel-network
+
+volumes:
+  sqldata:
+
+networks:
+  travel-network:
+    driver: bridge
