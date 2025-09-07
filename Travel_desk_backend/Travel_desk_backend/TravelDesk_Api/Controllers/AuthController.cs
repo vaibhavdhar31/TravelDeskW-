@@ -49,6 +49,10 @@ namespace TravelDesk_Api
                     role = user.Role.RoleName.ToLower().Replace(" ", "-"),
                     userId = user.UserId,
                     email = user.Email,
+                    employeeId = user.EmployeeId,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    department = user.Department,
                     expiresIn = 28800 // 8 hours in seconds
                 });
             }

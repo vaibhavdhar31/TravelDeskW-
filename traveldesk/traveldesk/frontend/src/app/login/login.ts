@@ -8,6 +8,12 @@ import { Auth } from '../services/auth';
 export interface LoginResponse {
   token: string;
   role: string;
+  userId: number;
+  email: string;
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  department: string;
 }
 
 @Component({
@@ -45,6 +51,14 @@ export class Login implements OnInit {
 
           localStorage.setItem('authToken', response.token);
           localStorage.setItem('userRole', response.role);
+          localStorage.setItem('userData', JSON.stringify({
+          userId: response.userId,
+          email: response.email,
+          employeeId: response.employeeId,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          department: response.department
+}));
 
           // Navigate based on role
           switch (response.role) {

@@ -123,6 +123,13 @@ export class TravelRequestService {
     });
   }
 
+  // Get documents for a specific request
+  getRequestDocuments(requestId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/TravelAdmin/request-documents/${requestId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   getAllUsers(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/admin/users`, {
       headers: this.getAuthHeaders()

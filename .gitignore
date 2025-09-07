@@ -84,6 +84,12 @@ desktop.ini
 CHAT_SESSION_*.md
 *COMPLETION_SUMMARY.md
 *SESSION_SUMMARY.md
+*Project_Summary.md
+*Project_Status.md
+*Jwt_Authentication_Details.md
+project_status.md
+jwt_authentication
+
 
 # Temporary SQL scripts (keep setup scripts)
 # setup-database.sql is kept

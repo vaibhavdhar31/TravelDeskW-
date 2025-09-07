@@ -23,9 +23,9 @@ export class EmployeeDashboard implements OnInit {
   activeSection: string = 'dashboard';
 
   employee: Employee = {
-    id: 'EMP001',
-    name: 'Employee User',
-    department: 'Engineering',
+    id: '',
+    name: '',
+    department: '',
   };
 
   newRequest: any = {
@@ -52,6 +52,11 @@ export class EmployeeDashboard implements OnInit {
   showFlightFields = false;
   showHotelFields = false;
 
+  // Modal properties
+  isViewModalOpen = false;
+  selectedRequest: any = null;
+  requestDocuments: any[] = [];
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -61,8 +66,23 @@ export class EmployeeDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadUserData();
     this.loadMyRequests();
   }
+
+  loadUserData() {
+  const userData = localStorage.getItem('userData');
+  if (userData) {
+    const user = JSON.parse(userData);
+    this.employee = {
+      id: user.employeeId || 'EMP001',
+      name: `${user.firstName || 'Employee'} ${user.lastName || 'User'}`,
+      department: user.department || 'Engineering'
+    };
+    this.newRequest.employeeId = user.employeeId || 'EMP001';
+    this.newRequest.departmentName = user.department || 'Engineering';
+  }
+}
 
   setActiveSection(section: string): void {
     this.activeSection = section;
@@ -184,6 +204,28 @@ export class EmployeeDashboard implements OnInit {
   viewRequest(requestId: any): void {
     console.log('View request:', requestId);
     // Add view functionality here
+  }
+
+  viewRequestDetails(requestId: number): void {
+    this.selectedRequest = this.history.find(req => req.requestId === requestId);
+    this.isViewModalOpen = true;
+    
+    // Load documents for this request
+    this.travelRequestService.getRequestDocuments(requestId).subscribe({
+      next: (documents) => {
+        this.requestDocuments = documents;
+      },
+      error: (error) => {
+        console.error('Error loading documents:', error);
+        this.requestDocuments = [];
+      }
+    });
+  }
+
+  closeViewModal(): void {
+    this.isViewModalOpen = false;
+    this.selectedRequest = null;
+    this.requestDocuments = [];
   }
 
   signOut() {

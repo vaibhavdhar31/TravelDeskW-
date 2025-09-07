@@ -29,6 +29,30 @@ namespace TravelDesk_Api.Controllers
                                             .ToListAsync();
 
             return Ok(allRequests);
+        }        // Get documents for a specific request
+        [HttpGet("request-documents/{id}")]
+        public async Task<IActionResult> GetRequestDocuments(int id)
+        {
+            var request = await _context.TravelRequests
+                                        .FirstOrDefaultAsync(tr => tr.RequestId == id);
+
+            if (request == null)
+            {
+                return NotFound("Request not found.");
+            }
+
+            var documents = new List<object>();
+            
+            if (!string.IsNullOrEmpty(request.PassportFileUrl))
+            {
+                documents.Add(new { 
+                    name = "Travel Documents", 
+                    url = request.PassportFileUrl,
+                    type = "booking"
+                });
+            }
+
+            return Ok(documents);
         }
 
         // Perform an action on a travel request

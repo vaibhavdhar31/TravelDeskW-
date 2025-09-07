@@ -380,6 +380,7 @@
                       <button
                         *ngIf="req.status === 'Approved'"
                         class="btn-action view"
+                        (click)="req.requestId && viewRequestDetails(req.requestId)"
                       >
                         View Details
                       </button>
@@ -392,5 +393,35 @@
         </div>
       </section>
     </main>
+  </div>
+</div>
+
+<!-- View Details Modal -->
+<div *ngIf="isViewModalOpen" class="modal-overlay" (click)="closeViewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Request Details</h3>
+      <button class="modal-close" (click)="closeViewModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="selectedRequest" class="request-details">
+        <p><strong>Request ID:</strong> {{ selectedRequest.requestId }}</p>
+        <p><strong>Project:</strong> {{ selectedRequest.projectName }}</p>
+        <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+        
+        <div *ngIf="requestDocuments.length > 0" class="documents-section">
+          <h4>Travel Documents</h4>
+          <div *ngFor="let doc of requestDocuments" class="document-item">
+            <a [href]="doc.url" target="_blank" class="document-link">
+              📄 {{ doc.name }}
+            </a>
+          </div>
+        </div>
+        
+        <div *ngIf="requestDocuments.length === 0" class="no-documents">
+          <p>No documents available for this request.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

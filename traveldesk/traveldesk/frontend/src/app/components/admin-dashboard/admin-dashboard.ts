@@ -78,6 +78,12 @@ export class AdminDashboard implements OnInit {
     manager: '',
     password: 'password123'
   };
+  roleMapping: { [key: string]: number } = {
+  'Admin': 3,
+  'Travel Admin': 4, 
+  'Employee': 1,
+  'Manager': 2
+};
 
   editingUser: User | null = null;
 
@@ -95,6 +101,14 @@ export class AdminDashboard implements OnInit {
   setActiveSection(section: string): void {
     this.activeSection = section;
   }
+
+  onRoleChange() {
+    console.log('Role changed to:', this.currentUser.role);
+  if (this.currentUser.role && this.roleMapping[this.currentUser.role]) {
+    this.currentUser.roleId = this.roleMapping[this.currentUser.role as keyof typeof this.roleMapping];
+    console.log('RoleId set to:', this.currentUser.roleId);
+  }
+}
 
   loadUsers() {
     console.log('Loading users...');
@@ -154,6 +168,16 @@ export class AdminDashboard implements OnInit {
   }
 
   saveUser() {
+
+  console.log('Before save - Role:', this.currentUser.role);
+  console.log('Before save - RoleId:', this.currentUser.roleId);
+    // Ensure roleId is set based on selected role
+  if (this.currentUser.role && this.roleMapping[this.currentUser.role]) {
+    this.currentUser.roleId = this.roleMapping[this.currentUser.role as keyof typeof this.roleMapping];
+  }
+
+  console.log('After mapping - RoleId:', this.currentUser.roleId);
+
     if (this.modalMode === 'add') {
       // Use currentUser data for adding
       const userData = {
@@ -166,6 +190,7 @@ export class AdminDashboard implements OnInit {
         roleId: this.currentUser.roleId,
         managerId: null
       };
+      console.log('Sending userData:', userData);
       this.addUserWithData(userData);
     } else {
       this.updateUser();
