@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TravelRequestService } from '../../services/travel-request.service';
 
@@ -51,7 +51,7 @@ export class AdminDashboard implements OnInit {
   searchTerm = '';
   selectedDepartment = '';
   departments = ['IT', 'HR', 'Engineering', 'Sales', 'Marketing'];
-  managers = ['John Doe', 'Jane Smith', 'Mike Wilson'];
+  managers: any[] = [];;
 
   newUser = {
     email: '',
@@ -91,12 +91,14 @@ export class AdminDashboard implements OnInit {
 
   constructor(
     private travelRequestService: TravelRequestService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.loadUsers();
-  }
+  this.loadUsers();
+  this.loadManagers(); // Add this line
+}
 
   setActiveSection(section: string): void {
     this.activeSection = section;
@@ -109,6 +111,38 @@ export class AdminDashboard implements OnInit {
     console.log('RoleId set to:', this.currentUser.roleId);
   }
 }
+
+
+loadManagers() {
+  // Get managers from existing users with Manager role
+  this.travelRequestService.getAllUsers().subscribe({
+    next: (response: any) => {
+      let allUsers = [];
+      if (Array.isArray(response)) {
+        allUsers = response;
+      } else if (response && response.users) {
+        allUsers = response.users;
+      } else if (response && response.Users) {
+        allUsers = response.Users;
+      }
+      
+      // Filter users with Manager role
+      this.managers = allUsers
+        .filter((user: any) => user.role === 'Manager' || user.roleId === 2)
+        .map((manager: any) => ({
+          UserId: manager.userId,
+          Name: `${manager.firstName} ${manager.lastName}`
+        }));
+      
+      console.log('Managers loaded:', this.managers);
+    },
+    error: (error: any) => {
+      console.error('Error loading managers:', error);
+      this.managers = [];
+    }
+  });
+}
+
 
   loadUsers() {
     console.log('Loading users...');
@@ -345,6 +379,7 @@ export class AdminDashboard implements OnInit {
       return matchesSearch && matchesDepartment;
     });
   }
+  
 
   signOut() {
     localStorage.removeItem('authToken');

@@ -89,6 +89,7 @@ CHAT_SESSION_*.md
 *Jwt_Authentication_Details.md
 project_status.md
 jwt_authentication
+chat-session.md
 
 
 # Temporary SQL scripts (keep setup scripts)
