@@ -351,4 +351,17 @@ export class AdminDashboard implements OnInit {
     localStorage.removeItem('userRole');
     this.router.navigate(['/login']);
   }
+
+  searchUserInDatabase() {
+  if (!this.searchTerm.trim()) {
+    alert('Please enter a search term.');
+    return;
+  }
+  // Filter users by first name or last name (case-insensitive)
+  const term = this.searchTerm.trim().toLowerCase();
+  this.filteredUsers = this.users.filter(user =>
+    user.firstName.toLowerCase().includes(term) ||
+    user.lastName.toLowerCase().includes(term)
+  );
+}
 }
