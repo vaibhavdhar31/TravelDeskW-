@@ -67,7 +67,37 @@ namespace TravelDesk_Api.Controllers
             var totalUsers = await _context.Users.CountAsync();
             return Ok(new { TotalUsers = totalUsers, Users = users });
         }
+        // Get all managers for dropdown
+        [HttpGet("managers")]
+        public async Task<IActionResult> GetManagers()
+        {
+            var managers = await _context.Users
+                                         .Include(u => u.Role)
+                                         .Where(u => u.Role.RoleName == "Manager")
+                                         .Select(u => new
+                                         {
+                                             u.UserId,
+                                             Name = u.FirstName + " " + u.LastName,
+                                             u.Email,
+                                             u.EmployeeId
+                                         })
+                                         .ToListAsync();
+            return Ok(managers);
+        }
 
+        // Get all roles for dropdown
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var roles = await _context.Roles
+                                      .Select(r => new
+                                      {
+                                          r.RoleId,
+                                          r.RoleName
+                                      })
+                                      .ToListAsync();
+            return Ok(roles);
+        }
         // Add a new user
         [HttpPost("add-user")]
         public async Task<IActionResult> AddUser([FromBody] AddUserDto userDto)
@@ -76,6 +106,13 @@ namespace TravelDesk_Api.Controllers
             if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))
             {
                 return BadRequest("Email and Password are required.");
+            }
+
+            // Check if email already exists
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
+            if (existingUser != null)
+            {
+                return BadRequest("A user with this email already exists.");
             }
 
             var user = new User

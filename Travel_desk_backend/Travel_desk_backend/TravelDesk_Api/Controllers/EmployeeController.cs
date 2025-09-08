@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TravelDesk_Api.Models;
+using TravelDesk_Api.Services;
 using System.Security.Claims;
 
 namespace TravelDesk_Api.Controllers
@@ -12,10 +13,12 @@ namespace TravelDesk_Api.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly TravelDeskContext _context;
+        private readonly IEmailService _emailService;
 
-        public EmployeeController(TravelDeskContext context)
+        public EmployeeController(TravelDeskContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpPost("create-request")]
@@ -47,6 +50,16 @@ namespace TravelDesk_Api.Controllers
 
             _context.TravelRequests.Add(travelRequest);
             await _context.SaveChangesAsync();
+
+            // Send email to manager
+            var employee = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            var manager = await _context.Users.FirstOrDefaultAsync(u => u.UserId == employee.ManagerId);
+            if (manager != null && !string.IsNullOrEmpty(manager.Email))
+            {
+                var subject = $"New Travel Request from {employee.FirstName} {employee.LastName}";
+                var body = $"<p>A new travel request (ID: {travelRequest.RequestId}) has been submitted for your approval.</p>";
+                await _emailService.SendEmailAsync(manager.Email, subject, body);
+            }
 
             return Ok(new { Message = "Request submitted successfully.", RequestId = travelRequest.RequestId });
         }
