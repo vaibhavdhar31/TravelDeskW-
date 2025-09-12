@@ -34,18 +34,17 @@ jobs:
     - name: Install frontend dependencies
       run: |
         cd traveldesk/traveldesk/frontend
-        rm -rf node_modules package-lock.json
         npm install
         
     - name: Run frontend tests
       run: |
         cd traveldesk/traveldesk/frontend
-        npx @angular/cli@latest test --watch=false --browsers=ChromeHeadless
+        ./node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless
         
     - name: Build frontend
       run: |
         cd traveldesk/traveldesk/frontend
-        npx @angular/cli@latest build
+        ./node_modules/.bin/ng build
 
   # Backend Testing Job
   backend-test:
