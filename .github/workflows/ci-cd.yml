@@ -18,7 +18,11 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.12.0'
+        node-version: 'lts/*'
+        always-auth: false
+        
+    - name: Verify Node.js version
+      run: node --version
         
     - name: Install frontend dependencies
       run: |
@@ -76,7 +80,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.12.0'
+        node-version: 'lts/*'
         
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
