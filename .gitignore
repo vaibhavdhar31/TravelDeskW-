@@ -105,3 +105,8 @@ debug-*.js
 # ===== LOGS =====
 *.log
 logs/
+# Chat and development logs
+chat-history.md
+*.chat
+development-notes.md
+CHAT_SESSION_TESTING_CICD_2025-09-12.md

@@ -16,7 +16,7 @@ namespace TravelDesk_Api.Controllers
         public int RoleId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public string? EmployeeId { get; set; }
+        // public string? EmployeeId { get; set; }
         public string? Department { get; set; }
         public int? ManagerId { get; set; }
     }
@@ -67,6 +67,37 @@ namespace TravelDesk_Api.Controllers
             var totalUsers = await _context.Users.CountAsync();
             return Ok(new { TotalUsers = totalUsers, Users = users });
         }
+
+        // Generate next employee ID based on role
+private async Task<string> GenerateEmployeeId(int roleId)
+{
+    var role = await _context.Roles.FindAsync(roleId);
+    string prefix = role?.RoleName switch
+    {
+        "Employee" => "EMP",
+        "Manager" => "MGR", 
+        "Admin" => "ADM",
+        "HR Travel Admin" => "ADM",
+        _ => "EMP"
+    };
+
+    var existingIds = await _context.Users
+        .Where(u => u.EmployeeId.StartsWith(prefix))
+        .Select(u => u.EmployeeId)
+        .ToListAsync();
+
+    int maxNumber = 0;
+    foreach (var id in existingIds)
+    {
+        if (id.Length > 3 && int.TryParse(id.Substring(3), out int number))
+        {
+            maxNumber = Math.Max(maxNumber, number);
+        }
+    }
+
+    return $"{prefix}{(maxNumber + 1):D3}";
+}
+
         // Get all managers for dropdown
         [HttpGet("managers")]
         public async Task<IActionResult> GetManagers()
@@ -102,6 +133,9 @@ namespace TravelDesk_Api.Controllers
         [HttpPost("add-user")]
         public async Task<IActionResult> AddUser([FromBody] AddUserDto userDto)
         {
+            // Debug logging
+            Console.WriteLine($"Received managerId: {userDto.ManagerId}");
+            
             // Manual validation for required fields
             if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))
             {
@@ -123,14 +157,22 @@ namespace TravelDesk_Api.Controllers
                 RoleId = userDto.RoleId,
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
-                EmployeeId = userDto.EmployeeId,
+                EmployeeId = await GenerateEmployeeId(userDto.RoleId),
                 Department = userDto.Department,
                 ManagerId = userDto.ManagerId
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return Ok(user);
+            return Ok(new { 
+                UserId = user.UserId,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                EmployeeId = user.EmployeeId,
+                Department = user.Department,
+                RoleId = user.RoleId
+            });
         }
 
         // Edit/update user information
@@ -141,6 +183,20 @@ namespace TravelDesk_Api.Controllers
             if (userToUpdate == null)
             {
                 return NotFound();
+
+            // Check if user has travel requests
+            var hasRequests = await _context.TravelRequests.AnyAsync(tr => tr.UserId == id);
+            if (hasRequests)
+            {
+                return BadRequest("Cannot delete user. User has associated travel requests.");
+            }
+
+            // Check if user is a manager for other users
+            var hasSubordinates = await _context.Users.AnyAsync(u => u.ManagerId == id);
+            if (hasSubordinates)
+            {
+                return BadRequest("Cannot delete user. User is assigned as a manager to other employees.");
+            }
             }
 
             // Update properties only if a new value is provided
@@ -171,9 +227,76 @@ namespace TravelDesk_Api.Controllers
             {
                 return NotFound();
             }
+
+            // Check if user has travel requests
+            var hasRequests = await _context.TravelRequests.AnyAsync(tr => tr.UserId == id);
+            if (hasRequests)
+            {
+                return BadRequest("Cannot delete user. User has associated travel requests.");
+            }
+
+            // Check if user is a manager for other users
+            var hasSubordinates = await _context.Users.AnyAsync(u => u.ManagerId == id);
+            if (hasSubordinates)
+            {
+                return BadRequest("Cannot delete user. User is assigned as a manager to other employees.");
+            }
+
             _context.Users.Remove(userToDelete);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // Soft delete a user (deactivate instead of delete)
+        [HttpPut("deactivate-user/{id}")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            var userToDeactivate = await _context.Users.FindAsync(id);
+            if (userToDeactivate == null)
+            {
+                return NotFound();
+            }
+
+            // Add IsActive field to User model if not exists, or use a status field
+            // For now, we'll change their role or add a flag
+            userToDeactivate.Department = "DEACTIVATED - " + userToDeactivate.Department;
+            
+            await _context.SaveChangesAsync();
+            return Ok("User deactivated successfully");
+        }
+
+        // Check user relationships
+        [HttpGet("check-relationships")]
+        public async Task<IActionResult> CheckRelationships()
+        {
+            var users = await _context.Users
+                .Select(u => new {
+                    UserId = u.UserId,
+                    Name = u.FirstName + " " + u.LastName,
+                    Email = u.Email,
+                    ManagerId = u.ManagerId,
+                    ManagerName = u.ManagerId != null ? 
+                        _context.Users.Where(m => m.UserId == u.ManagerId)
+                                     .Select(m => m.FirstName + " " + m.LastName)
+                                     .FirstOrDefault() : null
+                })
+                .ToListAsync();
+            
+            return Ok(users);
+        }
+
+        // Test specific relationship
+        [HttpGet("test-relationship")]
+        public async Task<IActionResult> TestRelationship()
+        {
+            var gaurav = await _context.Users.FirstOrDefaultAsync(u => u.Email == "dhardubey45@gmail.com");
+            var vaibhav = await _context.Users.FirstOrDefaultAsync(u => u.Email == "dhardubey11@gmail.com");
+            
+            return Ok(new {
+                Gaurav = gaurav != null ? new { gaurav.UserId, gaurav.FirstName, gaurav.LastName, gaurav.ManagerId } : null,
+                Vaibhav = vaibhav != null ? new { vaibhav.UserId, vaibhav.FirstName, vaibhav.LastName } : null,
+                IsLinked = gaurav?.ManagerId == vaibhav?.UserId
+            });
         }
     }
 }

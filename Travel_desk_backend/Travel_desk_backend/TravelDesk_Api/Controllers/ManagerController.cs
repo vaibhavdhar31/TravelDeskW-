@@ -46,11 +46,15 @@ namespace TravelDesk_Api.Controllers
             if (managerIdClaim == null) return Unauthorized("Manager ID not found in token.");
             int managerId = int.Parse(managerIdClaim.Value);
 
+            Console.WriteLine($"Manager ID from token: {managerId}");
+
             var pendingRequests = await _context.TravelRequests
                                                 .Include(tr => tr.User)
                                                 .Where(tr => tr.Status == "Pending" && tr.User.ManagerId == managerId)
                                                 .ToListAsync();
 
+            Console.WriteLine($"Found {pendingRequests.Count} pending requests for manager {managerId}");
+            
             return Ok(pendingRequests);
         }
 

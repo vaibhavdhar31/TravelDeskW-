@@ -153,4 +153,10 @@ export class TravelRequestService {
       headers: this.getAuthHeaders()
     });
   }
+
+  getUserProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/profile`, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }

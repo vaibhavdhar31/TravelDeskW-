@@ -20,6 +20,7 @@ interface Employee {
   styleUrls: ['./employee-dashboard.css'],
 })
 export class EmployeeDashboard implements OnInit {
+  currentUser: any = null;
   activeSection: string = 'dashboard';
 
   employee: Employee = {
@@ -66,8 +67,30 @@ export class EmployeeDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadUserProfile();
     this.loadUserData();
     this.loadMyRequests();
+  }
+
+  loadUserProfile(): void {
+    this.travelRequestService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Failed to load user profile:', err)
+    });
+  }
+
+  getUserInitials(): string {
+    if (!this.currentUser) return 'U';
+    const first = this.currentUser.firstName?.charAt(0) || '';
+    const last = this.currentUser.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase();
+  }
+
+  getUserFullName(): string {
+    if (!this.currentUser) return 'User';
+    return `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim();
   }
 
   loadUserData() {

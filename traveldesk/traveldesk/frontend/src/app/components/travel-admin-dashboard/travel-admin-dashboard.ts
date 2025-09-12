@@ -31,6 +31,7 @@ interface Stats {
   styleUrls: ['./travel-admin-dashboard.css'],
 })
 export class TravelAdminDashboard implements OnInit {
+  currentUser: any = null;
   activeSection: string = 'dashboard';
 
   stats: Stats = {
@@ -48,12 +49,34 @@ export class TravelAdminDashboard implements OnInit {
 
   ngOnInit() {
     console.log('🔧 Travel Admin dashboard initializing...');
+    this.loadUserProfile();
     this.loadApprovedRequests();
     this.loadCompletedRequests();
     // Auto-refresh every 30 seconds (only active requests)
     setInterval(() => {
       this.loadApprovedRequests();
     }, 30000);
+  }
+
+  loadUserProfile(): void {
+    this.travelRequestService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Failed to load user profile:', err)
+    });
+  }
+
+  getUserInitials(): string {
+    if (!this.currentUser) return 'U';
+    const first = this.currentUser.firstName?.charAt(0) || '';
+    const last = this.currentUser.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase();
+  }
+
+  getUserFullName(): string {
+    if (!this.currentUser) return 'User';
+    return `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim();
   }
 
   loadApprovedRequests() {

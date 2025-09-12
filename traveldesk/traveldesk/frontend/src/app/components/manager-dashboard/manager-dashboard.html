@@ -43,10 +43,10 @@
     <!-- Profile at bottom -->
     <div class="sidebar-profile">
       <div class="profile-info">
-        <div class="profile-avatar">MW</div>
+        <div class="profile-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">Mike Wilson</div>
-          <div class="profile-role">Manager</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Manager' }}</div>
         </div>
       </div>
       <button class="signout-btn" (click)="signOut()">Sign Out</button>

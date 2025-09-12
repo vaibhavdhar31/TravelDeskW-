@@ -39,10 +39,10 @@
     <!-- Profile at bottom -->
     <div class="sidebar-profile">
       <div class="profile-info">
-        <div class="profile-avatar">AA</div>
+        <div class="profile-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">{{ employee.name }}</div>
-          <div class="profile-role">Employee</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Employee' }}</div>
         </div>
       </div>
       <button class="signout-btn" (click)="signOut()">Sign Out</button>
@@ -58,10 +58,10 @@
         <div class="header-desc">Manage your travel requests</div>
       </div>
       <div class="header-profile">
-        <div class="profile-mini-avatar">AA</div>
+        <div class="profile-mini-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">{{ employee.name }}</div>
-          <div class="profile-role">Employee</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Employee' }}</div>
         </div>
       </div>
     </header>

@@ -33,6 +33,7 @@ interface Stats {
 })
 export class ManagerDashboard implements OnInit {
   activeSection: string = 'dashboard';
+  currentUser: any = null;
 
   stats: Stats = {
     pending: 0,
@@ -53,6 +54,7 @@ export class ManagerDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadUserProfile();
     this.loadPendingRequests();
     this.loadApprovedRequests();
     // Auto-refresh every 30 seconds to check for new requests
@@ -60,6 +62,27 @@ export class ManagerDashboard implements OnInit {
       this.loadPendingRequests();
       this.loadApprovedRequests();
     }, 30000);
+  }
+
+  loadUserProfile(): void {
+    this.travelRequestService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Failed to load user profile:', err)
+    });
+  }
+
+  getUserInitials(): string {
+    if (!this.currentUser) return 'U';
+    const first = this.currentUser.firstName?.charAt(0) || '';
+    const last = this.currentUser.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase();
+  }
+
+  getUserFullName(): string {
+    if (!this.currentUser) return 'User';
+    return `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim();
   }
 
   loadPendingRequests() {

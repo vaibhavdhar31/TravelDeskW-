@@ -47,10 +47,10 @@
     <!-- Profile at bottom -->
     <div class="sidebar-profile">
       <div class="profile-info">
-        <div class="profile-avatar">JA</div>
+        <div class="profile-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">John Admin</div>
-          <div class="profile-role">Administrator</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Administrator' }}</div>
         </div>
       </div>
       <button class="signout-btn" (click)="signOut()">Sign Out</button>
@@ -66,10 +66,10 @@
         <div class="header-desc">Manage users and system settings</div>
       </div>
       <div class="header-profile">
-        <div class="profile-mini-avatar">JA</div>
+        <div class="profile-mini-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">John Admin</div>
-          <div class="profile-role">Administrator</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Administrator' }}</div>
         </div>
       </div>
     </header>

@@ -35,6 +35,7 @@ interface Stats {
 })
 export class AdminDashboard implements OnInit {
   activeSection: string = 'dashboard';
+  currentUser: any = null;
 
   stats: Stats = {
     totalUsers: 0,
@@ -51,7 +52,7 @@ export class AdminDashboard implements OnInit {
   searchTerm = '';
   selectedDepartment = '';
   departments = ['IT', 'HR', 'Engineering', 'Sales', 'Marketing'];
-  managers: any[] = [];;
+  managers: any[] = [];
 
   newUser = {
     email: '',
@@ -64,26 +65,12 @@ export class AdminDashboard implements OnInit {
     managerId: null
   };
 
-  currentUser: User & { password?: string } = {
-    userId: 0,
-    firstName: '',
-    lastName: '',
-    email: '',
-    department: '',
-    role: '',
-    roleId: 3,
-    employeeId: '',
-    managerName: '',
-    status: 'Active',
-    manager: '',
-    password: 'password123'
-  };
   roleMapping: { [key: string]: number } = {
-  'Admin': 3,
-  'Travel Admin': 4, 
-  'Employee': 1,
-  'Manager': 2
-};
+    'Admin': 3,
+    'Travel Admin': 4,
+    'Employee': 1,
+    'Manager': 2
+  };
 
   editingUser: User | null = null;
 
@@ -96,6 +83,7 @@ export class AdminDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+  this.loadUserProfile();
   this.loadUsers();
   this.loadManagers(); // Add this line
 }
@@ -211,6 +199,7 @@ loadManagers() {
   }
 
   console.log('After mapping - RoleId:', this.currentUser.roleId);
+  console.log('Manager selected:', this.currentUser.manager);
 
     if (this.modalMode === 'add') {
       // Use currentUser data for adding
@@ -222,7 +211,7 @@ loadManagers() {
         employeeId: this.currentUser.employeeId,
         department: this.currentUser.department,
         roleId: this.currentUser.roleId,
-        managerId: null
+        managerId: this.currentUser.manager || null
       };
       console.log('Sending userData:', userData);
       this.addUserWithData(userData);
@@ -299,7 +288,8 @@ loadManagers() {
         },
         error: (error) => {
           console.error('Error deleting user:', error);
-          alert('Error deleting user. Please try again.');
+          const errorMessage = error.error || 'Error deleting user. Please try again.';
+          alert(errorMessage);
         }
       });
     }
@@ -393,10 +383,32 @@ loadManagers() {
     return;
   }
   // Filter users by first name or last name (case-insensitive)
-  const term = this.searchTerm.trim().toLowerCase();
-  this.filteredUsers = this.users.filter(user =>
-    user.firstName.toLowerCase().includes(term) ||
-    user.lastName.toLowerCase().includes(term)
-  );
-}
+    const term = this.searchTerm.trim().toLowerCase();
+    this.filteredUsers = this.users.filter(user => 
+      user.firstName?.toLowerCase().includes(term) || 
+      user.lastName?.toLowerCase().includes(term) ||
+      user.email?.toLowerCase().includes(term)
+    );
+  }
+
+  loadUserProfile(): void {
+    this.travelRequestService.getUserProfile().subscribe({
+      next: (user: any) => {
+        this.currentUser = user;
+      },
+      error: (err: any) => console.error('Failed to load user profile:', err)
+    });
+  }
+
+  getUserInitials(): string {
+    if (!this.currentUser) return 'U';
+    const first = this.currentUser.firstName?.charAt(0) || '';
+    const last = this.currentUser.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase();
+  }
+
+  getUserFullName(): string {
+    if (!this.currentUser) return 'User';
+    return `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim();
+  }
 }

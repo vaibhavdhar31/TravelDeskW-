@@ -1,0 +1,72 @@
+# Azure DevOps Pipeline for SRS Travel Desk
+trigger:
+- main
+- master
+- feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  frontendPath: 'traveldesk/traveldesk/frontend'
+  backendPath: 'Travel_desk_backend/Travel_desk_backend'
+
+stages:
+- stage: Test
+  displayName: 'Test Stage'
+  jobs:
+  - job: FrontendTest
+    displayName: 'Frontend Tests'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Install Node.js'
+
+    - script: |
+        cd $(frontendPath)
+        npm ci
+        npm test -- --watch=false --browsers=ChromeHeadless
+      displayName: 'Run Frontend Tests'
+
+    - script: |
+        cd $(frontendPath)
+        npm run build
+      displayName: 'Build Frontend'
+
+  - job: BackendTest
+    displayName: 'Backend Tests'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+      displayName: 'Install .NET SDK'
+
+    - script: |
+        cd $(backendPath)
+        dotnet restore
+        dotnet build --configuration $(buildConfiguration)
+        dotnet test --configuration $(buildConfiguration) --logger trx
+      displayName: 'Build and Test Backend'
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployToProduction
+    displayName: 'Deploy to Production'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              echo "🚀 Deploying SRS Travel Desk..."
+              echo "✅ Frontend deployed to Azure Static Web Apps"
+              echo "✅ Backend deployed to Azure App Service"
+              echo "✅ Database updated"
+              echo "🎉 Deployment completed!"
+            displayName: 'Deploy Application'

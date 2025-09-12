@@ -47,10 +47,10 @@
     <!-- Profile at bottom -->
     <div class="sidebar-profile">
       <div class="profile-info">
-        <div class="profile-avatar">ER</div>
+        <div class="profile-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">Emily Rodriguez</div>
-          <div class="profile-role">Travel Admin</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Travel Admin' }}</div>
         </div>
       </div>
       <button class="signout-btn" (click)="signOut()">Sign Out</button>
@@ -66,10 +66,10 @@
         <div class="header-desc">Manage travel arrangements and bookings</div>
       </div>
       <div class="header-profile">
-        <div class="profile-mini-avatar">ER</div>
+        <div class="profile-mini-avatar">{{ getUserInitials() }}</div>
         <div class="profile-details">
-          <div class="profile-name">Emily Rodriguez</div>
-          <div class="profile-role">Travel Admin</div>
+          <div class="profile-name">{{ getUserFullName() }}</div>
+          <div class="profile-role">{{ currentUser?.role || 'Travel Admin' }}</div>
         </div>
       </div>
     </header>

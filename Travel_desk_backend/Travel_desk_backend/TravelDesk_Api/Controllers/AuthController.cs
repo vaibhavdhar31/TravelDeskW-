@@ -69,6 +69,30 @@ namespace TravelDesk_Api
             return Ok(new { message = "Token is valid", userId = User.Identity?.Name });
         }
 
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized();
+            
+            int userId = int.Parse(userIdClaim.Value);
+            var user = await _context.Users.Include(u => u.Role)
+                                           .FirstOrDefaultAsync(u => u.UserId == userId);
+            
+            if (user == null) return NotFound();
+            
+            return Ok(new {
+                userId = user.UserId,
+                email = user.Email,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                employeeId = user.EmployeeId,
+                department = user.Department,
+                role = user.Role.RoleName
+            });
+        }
+
         // Temporary GET endpoint to generate a password hash (remove in production)
         [HttpGet("generate-hash")]
         public IActionResult GenerateHash(string password)
