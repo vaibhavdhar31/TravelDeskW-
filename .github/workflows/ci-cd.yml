@@ -25,13 +25,17 @@ jobs:
         node --version
         npm --version
         
-    - name: Clear npm cache
-      run: npm cache clean --force
+    - name: Clear npm cache and install Angular CLI
+      run: |
+        npm cache clean --force
+        npm uninstall -g @angular/cli
+        npm install -g @angular/cli@latest
         
     - name: Install frontend dependencies
       run: |
         cd traveldesk/traveldesk/frontend
-        npm ci
+        rm -rf node_modules package-lock.json
+        npm install
         
     - name: Run frontend tests
       run: |
