@@ -40,12 +40,12 @@ jobs:
     - name: Run frontend tests
       run: |
         cd traveldesk/traveldesk/frontend
-        npm test -- --watch=false --browsers=ChromeHeadless
+        npx @angular/cli@latest test --watch=false --browsers=ChromeHeadless
         
     - name: Build frontend
       run: |
         cd traveldesk/traveldesk/frontend
-        npm run build
+        npx @angular/cli@latest build
 
   # Backend Testing Job
   backend-test:
