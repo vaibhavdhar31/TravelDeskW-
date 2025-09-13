@@ -18,7 +18,9 @@ jobs:
     - name: Setup Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '22.12.0'
+        cache: 'npm'
+        cache-dependency-path: 'traveldesk/traveldesk/frontend/package-lock.json'
         
     - name: Verify Node.js version
       run: |
@@ -28,8 +30,7 @@ jobs:
     - name: Clear npm cache and install Angular CLI
       run: |
         npm cache clean --force
-        npm uninstall -g @angular/cli
-        npm install -g @angular/cli@latest
+        npm install -g @angular/cli@18
         
     - name: Install frontend dependencies
       run: |
@@ -87,7 +88,9 @@ jobs:
     - name: Setup Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '22.12.0'
+        cache: 'npm'
+        cache-dependency-path: 'traveldesk/traveldesk/frontend/package-lock.json'
         
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
